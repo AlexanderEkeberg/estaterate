@@ -3,7 +3,6 @@ package no.district.controllers;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import no.district.services.DistrictService;
-import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,7 +18,7 @@ public class DistrictController {
 
     @GetMapping
     public ResponseEntity<String> getDistrict() {
-        String result = districtService.getPropertyData();
+        String result = districtService.getDistrictData();
         return ResponseEntity.ok("Received from Property Service:" + result);
     }
 
