@@ -1,12 +1,18 @@
-Temporary README for application setup
+# Temporary README for application setup from root
 
-Setup from root project:
-(terminal 1) cd district 
-(terminal 2) cd property
+### Terminal 1: District
+```bash
+cd district
+mvn clean spring-boot:run
+```
 
-Then run "mvn spring-boot:run" in both terminals.
+### Terminal 2: Property
+```bash
+cd property
+mvn clean spring-boot:run
+```
 
-District starts on port 8081 http://localhost:8081/swagger-ui/index.html
-Property starts on port 8090 http://localhost:8090/swagger-ui/index.html
+* **District API:** [http://localhost:8081/swagger-ui/index.html](http://localhost:8081/swagger-ui/index.html) (Port 8081)
+* **Property API:** [http://localhost:8090/swagger-ui/index.html](http://localhost:8090/swagger-ui/index.html) (Port 8090)
 
 
