@@ -18,7 +18,7 @@ public class PropertyClient {
     private final String url;
     private final RestTemplate restTemplate;
 
-    public PropertyClient(RestTemplateBuilder builder, @Value("$property.service.url") String url) {
+    public PropertyClient(RestTemplateBuilder builder, @Value("${property.service.url}") String url) {
         this.url = url;
         this.restTemplate = builder.build();
     }
