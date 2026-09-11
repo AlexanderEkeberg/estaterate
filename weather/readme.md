@@ -32,3 +32,8 @@ vi spør bare om ett punkt, og får data for det området.
 
 så hvis finn annonsen ikke inneholder koordinater og bare post kode må jeg enten opprette en .json fil med 
 postkoder = koordinater ferdig oppsatt eller lage en funskjon som gjør om postkode til koordinater.
+
+
+fant ut at finn annonsene inneholder koordinater for lat og lng som jeg skal bruke i weather. 
+
+vi kan også se på noe som gir brukeren en oversikt over solforhold i området osv.
