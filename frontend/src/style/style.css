@@ -1,0 +1,39 @@
+@font-face {
+    font-family: "euclid-circular-a";
+    src: url("/src/assets/fonts/euclid-circular-a-regular.ttf");
+}
+
+@font-face {
+    font-family: "euclid-circular-a-bold";
+    src: url("/src/assets/fonts/euclid-circular-a-bold.ttf");
+}
+
+@import "tailwindcss";
+
+@theme {
+    --font-sans: "euclid-circular-a", sans-serif;
+}
+
+@layer base {
+    body {
+        @apply bg-[#10141E];
+        scrollbar-width: thin;
+        scrollbar-color: #F3F3F3 transparent;
+    }
+
+    ::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background-color: #F3F3F3;
+    }
+}
+
+.bold-font {
+    font-family: "euclid-circular-a-bold", sans-serif;
+}
