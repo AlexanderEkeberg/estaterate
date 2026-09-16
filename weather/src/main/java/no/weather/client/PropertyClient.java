@@ -1,6 +1,7 @@
 package no.weather.client;
 
 import lombok.extern.slf4j.Slf4j;
+import no.weather.dto.PropertyLocationDTO;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.restclient.RestTemplateBuilder;
 import org.springframework.core.ParameterizedTypeReference;
@@ -21,17 +22,10 @@ public class PropertyClient {
         this.restTemplate = builder.build();
     }
 
-    public String getPropertyData() {
+    public PropertyLocationDTO getPropertyLocation() {
         try {
-            ResponseEntity<String> response = restTemplate.exchange(
-                    url,
-                    HttpMethod.GET,
-                    null,
-                    new ParameterizedTypeReference<String>() {}
-            );
-            return response.getBody();
-        }
-        catch (Exception e) {
+            return restTemplate.getForObject(url, PropertyLocationDTO.class);
+        } catch (Exception e) {
             log.error("Could not contact Property Service", e);
             return null;
         }
