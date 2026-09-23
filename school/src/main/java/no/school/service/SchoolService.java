@@ -1,8 +1,8 @@
-package org.example.school.service;
+package no.school.service;
 
 import lombok.RequiredArgsConstructor;
-import org.example.school.client.PropertyClient;
-import org.example.school.dto.PropertyLocationDTO;
+import no.school.client.PropertyClient;
+import no.school.dto.PropertyLocationDTO;
 import org.springframework.stereotype.Service;
 
 @Service

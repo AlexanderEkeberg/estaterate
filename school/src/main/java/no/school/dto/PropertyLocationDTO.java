@@ -1,4 +1,4 @@
-package org.example.school.dto;
+package no.school.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
