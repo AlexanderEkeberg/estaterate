@@ -1,5 +1,7 @@
 package no.weather.service;
 
+import no.weather.dto.WeatherResponseDTO;
+
 public interface WeatherService {
-    String getWeather();
+    WeatherResponseDTO getWeather();
 }
