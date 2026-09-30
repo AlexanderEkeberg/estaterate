@@ -20,7 +20,7 @@
 }
 
 .ghost {
-  background: transparent;
+  background-color: rgb(221 221 221 / 0.3);
   border-color: rgb(11 20 55 / 0.2);
   color: var(--color-navy);
 }
