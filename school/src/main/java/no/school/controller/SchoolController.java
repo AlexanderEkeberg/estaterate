@@ -1,4 +1,3 @@
-
 package no.school.controller;
 
 import lombok.RequiredArgsConstructor;
