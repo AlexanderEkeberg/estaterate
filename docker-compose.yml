@@ -23,6 +23,19 @@ services:
     networks:
       - estaterate
 
+  gateway:
+    build:
+      context: ./gateway
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      - property
+      - weather
+      - school
+    networks:
+      - estaterate
+
 
 #  consul:
 #    image: hashicorp/consul:1.20
