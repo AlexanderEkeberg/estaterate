@@ -24,19 +24,16 @@ mvn clean spring-boot:run
 
 
 
-## Docker 
-Build the application JARs from root:
+## Docker
 
+Build and start the services (first time or if code or config has been changed):
 ```bash
-mvn -f property/pom.xml clean package -DskipTests
-mvn -f weather/pom.xml clean package -DskipTests
-mvn -f school/pom.xml clean package -DskipTests
-mvn -f gateway/pom.xml clean package -DskipTests
+docker-compose up --build -d
 ```
 
-Start the services:
+Start the services (alternative if nothing has been changed):
 ```bash
-docker-compose up
+docker-compose up -d
 ```
 
 Gateway port: [http://localhost:8080](http://localhost:8080) 
