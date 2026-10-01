@@ -1,0 +1,83 @@
+services:
+  property:
+    build:
+      context: ./property
+      dockerfile: Dockerfile
+    ports:
+      - "8090:8090"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    depends_on:
+      - consul
+    networks:
+      - estaterate
+
+  weather:
+    build:
+      context: ./weather
+      dockerfile: Dockerfile
+    ports:
+      - "8082:8082"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    depends_on:
+      - property
+      - consul
+    networks:
+      - estaterate
+
+  gateway:
+    build:
+      context: ./gateway
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      - property
+      - weather
+      - school
+      - consul
+    networks:
+      - estaterate
+
+
+  consul:
+    image: hashicorp/consul:2.0.0
+    container_name: consul
+    ports:
+      - "8500:8500"
+    command: agent -dev -node=consul -client=0.0.0.0
+    networks:
+      - estaterate
+
+#  district:
+#    build:
+#      context: ./district
+#      dockerfile: Dockerfile
+#    ports:
+#      - "8081:8081"
+#    environment:
+#      SPRING_PROFILES_ACTIVE: docker
+#    depends_on:
+#      - property
+#      - consul
+#    networks:
+#      - estaterate
+
+  school:
+    build:
+      context: ./school
+      dockerfile: Dockerfile
+    ports:
+      - "8083:8083"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    depends_on:
+      - property
+      - consul
+    networks:
+      - estaterate
+
+networks:
+  estaterate:
+    driver: bridge
