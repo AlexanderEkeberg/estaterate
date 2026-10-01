@@ -3,14 +3,14 @@
 }
 
 .title {
-  max-width: 40rem;
+  max-width: 50rem;
   margin: 1.5rem 0 1rem;
   font-size: 2.5rem;
   line-height: 1.1;
 }
 
 .subtitle {
-  max-width: 34rem;
+  max-width: 50rem;
   margin: 0;
   font-size: 1.125rem;
   line-height: 1.4;
@@ -18,7 +18,7 @@
 
 @media (min-width: 768px) {
   .hero {
-    padding: 2rem 3.5rem;
+    padding: 3rem 6.5rem;
   }
 
   .title {
