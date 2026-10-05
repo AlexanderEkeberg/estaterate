@@ -1,8 +1,13 @@
 .page {
-    min-height: max(100vh);
+    width: 100%;
+    min-height: 100vh;
+    background-color: var(--color-surface);
+}
+
+.heroBackground {
     background-color: var(--color-navy);
     background-image: url("../assets/images/main_img.jpg");
     background-size: cover;
-    background-position: center;
+    background-position: top center;
     background-repeat: no-repeat;
 }

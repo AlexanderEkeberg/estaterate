@@ -5,8 +5,10 @@ import styles from "./LandingPage.module.css";
 export function LandingPage() {
   return (
     <main className={styles.page}>
-      <Navbar />
-      <Hero />
+      <div className={styles.heroBackground}>
+        <Navbar />
+        <Hero />
+      </div>
     </main>
   );
 }
