@@ -1,6 +1,7 @@
 import { ChartNoAxesColumn } from "lucide-react";
 import { Badge } from "../ui/Badge.js";
 import { UrlSearch } from "./UrlSearch.js";
+import { FeatureGrid } from "./FeatureGrid.js";
 import styles from "./Hero.module.css";
 
 export function Hero() {
@@ -17,6 +18,7 @@ export function Hero() {
         and surrounding area — collected in one place.
       </p>
       <UrlSearch />
+      <FeatureGrid />
     </section>
   );
 }
