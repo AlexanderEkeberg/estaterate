@@ -1,0 +1,62 @@
+.card {
+  width: 100%;
+  max-width: 24rem;
+  padding: 0.75rem;
+  border-radius: 0.75rem;
+  background: white;
+  box-shadow: 0 8px 32px rgb(11 20 55 / 0.12);
+}
+
+.images {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  grid-template-rows: repeat(2, 1fr);
+  gap: 0.5rem;
+  height: 9rem;
+}
+
+.mainImage {
+  grid-row: span 2;
+  border-radius: 0.5rem;
+    border: 1px solid black;
+}
+
+.smallImage {
+  border-radius: 0.5rem;
+    border: 1px solid black;
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 1rem 0.25rem;
+}
+
+.address {
+  width: 70%;
+  height: 1.25rem;
+  border-radius: 0.25rem;
+    border: 1px solid black;
+}
+
+.details {
+  width: 90%;
+  height: 0.875rem;
+  border-radius: 0.25rem;
+  border: 1px solid black;
+
+}
+
+.button {
+  height: 2.75rem;
+  border-radius: 0.5rem;
+  background: rgb(10 92 255 / 0.08);
+  border: 1px solid rgb(10 92 255 / 0.08);
+}
+
+@media (min-width: 1024px) {
+  .card {
+    transform: rotate(2deg);
+  }
+}
