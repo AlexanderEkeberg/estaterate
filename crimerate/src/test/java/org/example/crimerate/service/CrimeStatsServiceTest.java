@@ -1,7 +1,11 @@
 package org.example.crimerate.service;
 
 import org.example.crimerate.client.OsloStatbankClient;
+import org.example.crimerate.client.PropertyClient;
+import org.example.crimerate.dto.CrimeRateResponseDTO;
+import org.example.crimerate.dto.PropertyLocationDTO;
 import org.example.crimerate.entity.CrimeAreaStats;
+import org.example.crimerate.repository.CrimeAreaStatsRepo;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -13,6 +17,9 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -21,8 +28,42 @@ class CrimeStatsServiceTest {
     @Mock
     private OsloStatbankClient statbankClient;
 
+    @Mock
+    private CrimeAreaStatsRepo crimeAreaStatsRepo;
+
+    @Mock
+    private PropertyClient propertyClient;
+
     @InjectMocks
     private CrimeStatsService crimeStatsService;
+
+    @Test
+    void getForProperty_returnsStatsForBydelFromProperty() {
+        CrimeAreaStats sagene = new CrimeAreaStats(1L, "3", "Sagene", CrimeAreaStats.AreaType.BYDEL,
+                "OSLO_STATBANK_KRI002", 2024, 3906, 47627, 82.0, 59.0);
+        when(propertyClient.getPropertyLocation()).thenReturn(new PropertyLocationDTO("Sagene"));
+        when(crimeAreaStatsRepo.findByAreaTypeAndYear(CrimeAreaStats.AreaType.BYDEL, 2024))
+                .thenReturn(List.of(sagene));
+
+        assertThat(crimeStatsService.getForProperty(2024))
+                .map(CrimeRateResponseDTO::bydel)
+                .contains("Sagene");
+    }
+
+    @Test
+    void getForProperty_isEmptyWhenPropertyHasNoBydel() {
+        when(propertyClient.getPropertyLocation()).thenReturn(new PropertyLocationDTO(null));
+
+        assertThat(crimeStatsService.getForProperty(2024)).isEmpty();
+        verifyNoInteractions(crimeAreaStatsRepo, statbankClient);
+    }
+
+    @Test
+    void getForProperty_isEmptyWhenPropertyIsUnavailable() {
+        when(propertyClient.getPropertyLocation()).thenReturn(null);
+
+        assertThat(crimeStatsService.getForProperty(2024)).isEmpty();
+    }
 
     @Test
     void buildStats_calculatesRateAndScoreFromRealNumbers() {
@@ -53,6 +94,31 @@ class CrimeStatsServiceTest {
         List<CrimeAreaStats> stats = crimeStatsService.buildStats(2024);
 
         assertThat(stats).extracting(CrimeAreaStats::getAreaName).containsExactly("Gamle Oslo");
+    }
+
+    @Test
+    void getStats_usesStoredDataWhenPresent() {
+        CrimeAreaStats stored = new CrimeAreaStats(1L, "3", "Sagene", CrimeAreaStats.AreaType.BYDEL,
+                "OSLO_STATBANK_KRI002", 2024, 3906, 47000, 83.1, 58.4);
+        when(crimeAreaStatsRepo.findByAreaTypeAndYear(CrimeAreaStats.AreaType.BYDEL, 2024))
+                .thenReturn(List.of(stored));
+
+        assertThat(crimeStatsService.getStats(2024)).containsExactly(stored);
+        verifyNoInteractions(statbankClient);
+    }
+
+    @Test
+    void getStats_fetchesAndSavesWhenMissing() {
+        when(crimeAreaStatsRepo.findByAreaTypeAndYear(CrimeAreaStats.AreaType.BYDEL, 2024))
+                .thenReturn(List.of());
+        when(statbankClient.getCrimeCounts(2024)).thenReturn(Map.of("1", 9499, "11", 2231));
+        when(statbankClient.getPopulation(2024)).thenReturn(Map.of("1", 63721, "11", 34111));
+        when(crimeAreaStatsRepo.saveAll(anyList())).thenAnswer(inv -> inv.getArgument(0));
+
+        assertThat(crimeStatsService.getStats(2024))
+                .extracting(CrimeAreaStats::getAreaName)
+                .containsExactly("Gamle Oslo", "Stovner");
+        verify(crimeAreaStatsRepo).saveAll(anyList());
     }
 
     @Test

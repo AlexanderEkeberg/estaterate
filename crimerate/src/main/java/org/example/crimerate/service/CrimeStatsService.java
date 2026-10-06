@@ -3,11 +3,16 @@ package org.example.crimerate.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.crimerate.client.OsloStatbankClient;
+import org.example.crimerate.client.PropertyClient;
 import org.example.crimerate.dto.CrimeRateResponseDTO;
+import org.example.crimerate.dto.PropertyLocationDTO;
 import org.example.crimerate.entity.CrimeAreaStats;
+import org.example.crimerate.repository.CrimeAreaStatsRepo;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -22,6 +27,33 @@ public class CrimeStatsService {
     private static final double RATE_AT_ZERO_SCORE = 200.0;
 
     private final OsloStatbankClient statbankClient;
+    private final CrimeAreaStatsRepo crimeAreaStatsRepo;
+    private final PropertyClient propertyClient;
+
+    public Optional<CrimeRateResponseDTO> getForProperty(int year) {
+        PropertyLocationDTO location = propertyClient.getPropertyLocation();
+        if (location == null || location.getBydel() == null) {
+            log.warn("Ingen bydel tilgjengelig fra property");
+            return Optional.empty();
+        }
+        return getBydel(location.getBydel(), year);
+    }
+
+    @Transactional
+    public List<CrimeAreaStats> getStats(int year) {
+        List<CrimeAreaStats> stored = crimeAreaStatsRepo.findByAreaTypeAndYear(CrimeAreaStats.AreaType.BYDEL, year);
+        if (!stored.isEmpty()) {
+            return sortByBydelCode(stored);
+        }
+        log.info("Ingen lagrede tall for {}, henter fra statistikkbanken", year);
+        return sortByBydelCode(crimeAreaStatsRepo.saveAll(buildStats(year)));
+    }
+
+    private List<CrimeAreaStats> sortByBydelCode(List<CrimeAreaStats> stats) {
+        return stats.stream()
+                .sorted(Comparator.comparingInt(s -> Integer.parseInt(s.getAreaCode())))
+                .toList();
+    }
 
     public List<CrimeAreaStats> buildStats(int year) {
         Map<String, Integer> crimeCounts = statbankClient.getCrimeCounts(year);
@@ -54,14 +86,14 @@ public class CrimeStatsService {
     }
 
     public List<CrimeRateResponseDTO> getAllBydeler(int year) {
-        return buildStats(year).stream()
+        return getStats(year).stream()
                 .map(this::toResponse)
                 .toList();
     }
 
     public Optional<CrimeRateResponseDTO> getBydel(String name, int year) {
         return OsloBydel.fromName(name)
-                .flatMap(bydel -> buildStats(year).stream()
+                .flatMap(bydel -> getStats(year).stream()
                         .filter(stats -> stats.getAreaCode().equals(bydel.getCode()))
                         .findFirst())
                 .map(this::toResponse);
