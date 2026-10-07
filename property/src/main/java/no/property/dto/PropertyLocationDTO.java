@@ -14,4 +14,6 @@ public class PropertyLocationDTO {
     //Todo: endre til double
     private String latitude;
     private String longitude;
+    private String municipalityNumber;
+    private String district;
 }

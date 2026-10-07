@@ -1,6 +1,7 @@
 package no.property.services;
 
 import no.property.dto.PropertyLocationDTO;
+import no.property.exception.ScrapingFailedException;
 import org.springframework.stereotype.Component;
 
 import java.util.regex.Matcher;
@@ -14,12 +15,14 @@ class FinnHtmlParser {
     private static final Pattern POSTAL_CODE_PATTERN = Pattern.compile("\"postalCode\",\"(\\d{4})\"");
     private static final Pattern LAT_PATTERN = Pattern.compile("\"lat\",([\\d.]+)");
     private static final Pattern LNG_PATTERN = Pattern.compile("\"lng\",([\\d.]+)");
+    private static final Pattern MUNICIPALITY_PATTERN = Pattern.compile("\"municipalityNumber\",(\\d+)");
+    private static final Pattern LOCATION_LINK_PATTERN = Pattern.compile(
+            "<a href=\"[^\"]*location=([\\d.]+)\"[^>]*>([^<]+)</a>");
 
-    // TODO: legge til egen exception-type er fint her
     PropertyLocationDTO parse(String html, String url) {
         int markerIndex = html.indexOf(DATA_MARKER);
         if (markerIndex == -1) {
-            throw new RuntimeException("Fant ikke forventet datablokk på siden: " + url);
+            throw new ScrapingFailedException("Expected data block not found: " + url);
         }
 
         String section = html.substring(markerIndex).replace("\\\"", "\"");
@@ -28,7 +31,29 @@ class FinnHtmlParser {
         String latitude = extract(LAT_PATTERN, section);
         String longitude = extract(LNG_PATTERN, section);
 
-        return new PropertyLocationDTO(url, postalCode, latitude, longitude);
+        if (latitude == null || longitude == null) {
+            throw new ScrapingFailedException("Coordinates not found in listing: " + url);
+        }
+
+        String rawMunicipality = extract(MUNICIPALITY_PATTERN, section);
+        String municipalityNumber = rawMunicipality == null
+                ? null
+                : String.format("%04d", Integer.parseInt(rawMunicipality));
+        String district = extractDistrict(html);
+
+        return new PropertyLocationDTO(url, postalCode, latitude, longitude, municipalityNumber, district);
+    }
+
+    private String extractDistrict(String html) {
+        String district = null;
+        Matcher matcher = LOCATION_LINK_PATTERN.matcher(html);
+        while (matcher.find()) {
+            String locationId = matcher.group(1);
+            if (locationId.startsWith("2.") || locationId.startsWith("1.20061.")) {
+                district = matcher.group(2).trim();
+            }
+        }
+        return district;
     }
 
     private String extract(Pattern pattern, String text) {
