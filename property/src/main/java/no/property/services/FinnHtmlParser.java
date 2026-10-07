@@ -1,6 +1,7 @@
 package no.property.services;
 
 import no.property.dto.PropertyLocationDTO;
+import no.property.exception.ScrapingFailedException;
 import org.springframework.stereotype.Component;
 
 import java.util.regex.Matcher;
@@ -15,11 +16,10 @@ class FinnHtmlParser {
     private static final Pattern LAT_PATTERN = Pattern.compile("\"lat\",([\\d.]+)");
     private static final Pattern LNG_PATTERN = Pattern.compile("\"lng\",([\\d.]+)");
 
-    // TODO: legge til egen exception-type er fint her
     PropertyLocationDTO parse(String html, String url) {
         int markerIndex = html.indexOf(DATA_MARKER);
         if (markerIndex == -1) {
-            throw new RuntimeException("Fant ikke forventet datablokk på siden: " + url);
+            throw new ScrapingFailedException("Expected data block not found: " + url);
         }
 
         String section = html.substring(markerIndex).replace("\\\"", "\"");
@@ -27,6 +27,10 @@ class FinnHtmlParser {
         String postalCode = extract(POSTAL_CODE_PATTERN, section);
         String latitude = extract(LAT_PATTERN, section);
         String longitude = extract(LNG_PATTERN, section);
+
+        if (latitude == null || longitude == null) {
+            throw new ScrapingFailedException("Coordinates not found in listing: " + url);
+        }
 
         return new PropertyLocationDTO(url, postalCode, latitude, longitude);
     }
