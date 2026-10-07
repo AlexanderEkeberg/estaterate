@@ -2,10 +2,12 @@ package org.example.crimerate.client;
 
 import lombok.extern.slf4j.Slf4j;
 import org.example.crimerate.dto.StatbankResponseDTO;
+import org.example.crimerate.service.OsloBydel;
 import org.springframework.boot.restclient.RestTemplateBuilder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,10 +20,11 @@ public class OsloStatbankClient {
     private static final String KRI002_URL = BASE_URL + "/Kriminalitet/KRI002.px";
     private static final String BEF005_URL = BASE_URL + "/Befolkning/Folkemengde/OK-BEF005.px";
 
-    private static final int FIRST_YEAR = 2017;
+    public static final int FIRST_YEAR = 2017;
+    public static final int LAST_YEAR = 2024;
 
     private static final List<String> BYDEL_CODES =
-            List.of("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15");
+            Arrays.stream(OsloBydel.values()).map(OsloBydel::getCode).toList();
 
     private final RestTemplate restTemplate;
 

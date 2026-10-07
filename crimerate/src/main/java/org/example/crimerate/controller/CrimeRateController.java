@@ -1,6 +1,7 @@
 package org.example.crimerate.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.example.crimerate.client.OsloStatbankClient;
 import org.example.crimerate.dto.CrimeRateResponseDTO;
 import org.example.crimerate.service.CrimeStatsService;
 import org.springframework.http.ResponseEntity;
@@ -16,9 +17,6 @@ import java.util.List;
 @RequestMapping("/api/crimerate")
 @RequiredArgsConstructor
 public class CrimeRateController {
-
-    private static final int FIRST_YEAR = 2017;
-    private static final int LAST_YEAR = 2024;
 
     private final CrimeStatsService crimeStatsService;
 
@@ -55,6 +53,6 @@ public class CrimeRateController {
     }
 
     private boolean isValidYear(int year) {
-        return year >= FIRST_YEAR && year <= LAST_YEAR;
+        return year >= OsloStatbankClient.FIRST_YEAR && year <= OsloStatbankClient.LAST_YEAR;
     }
 }
