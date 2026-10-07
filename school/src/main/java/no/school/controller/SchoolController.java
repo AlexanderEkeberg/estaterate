@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/school")
 @RequiredArgsConstructor
+
 public class SchoolController {
 
     private final SchoolService schoolService;
@@ -17,5 +18,9 @@ public class SchoolController {
     @GetMapping
     public ResponseEntity<String> getStatus() {
         return ResponseEntity.ok(schoolService.propertyConnection());
+    }
+    @GetMapping("/nsr-test")
+    public ResponseEntity<String> getNsrStatus() {
+        return ResponseEntity.ok(schoolService.nsrConnection());
     }
 }

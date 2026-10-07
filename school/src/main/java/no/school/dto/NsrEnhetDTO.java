@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 
 public class NsrEnhetDTO {
@@ -29,7 +28,6 @@ public class NsrEnhetDTO {
 
     @Data
     @NoArgsConstructor
-    @AllArgsConstructor
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Koordinat {
         @JsonProperty("Lengdegrad")

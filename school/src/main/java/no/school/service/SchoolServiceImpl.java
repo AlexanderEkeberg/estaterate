@@ -3,8 +3,10 @@ package no.school.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import no.school.client.PropertyClient;
+import no.school.dto.NsrEnhetResponseDTO;
 import no.school.dto.PropertyLocationDTO;
 import org.springframework.stereotype.Service;
+import no.school.client.NsrClient;
 
 @Slf4j
 @Service
@@ -12,6 +14,7 @@ import org.springframework.stereotype.Service;
 public class SchoolServiceImpl implements SchoolService {
 
     private final PropertyClient propertyClient;
+    private final NsrClient nsrClient;
 
     @Override
     public String propertyConnection() {
@@ -24,5 +27,18 @@ public class SchoolServiceImpl implements SchoolService {
         double lon = Double.parseDouble(location.getLongitude());
 
         return "Fant lokasjon: " + lat + ", " + lon;
+    }
+    @Override
+    public String nsrConnection() {
+        NsrEnhetResponseDTO response = nsrClient.getSchoolsByKommune("0301");
+
+        if (response == null) {
+            return "Kunne ikke nå nsr";
+        }
+
+        int antallISvaret = response.getEnhetListe() != null ? response.getEnhetListe().size() : 0;
+
+        return "Totalt i Oslo: " + response.getTotaltAntallEnheter()
+                + ", antall i denne siden: " + antallISvaret;
     }
 }
