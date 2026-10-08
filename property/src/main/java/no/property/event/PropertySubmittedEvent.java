@@ -1,11 +1,18 @@
 package no.property.event;
 
+import java.time.Instant;
+import java.util.UUID;
+
 public record PropertySubmittedEvent(
+        UUID eventId,
+        String eventType,
+        int eventVersion,
+        Instant occurredAt,
         String analysisId,
         String url,
-        double lat,
-        double lon,
         String postalCode,
+        double latitude,
+        double longitude,
         String municipalityNumber,
         String district
 ) {

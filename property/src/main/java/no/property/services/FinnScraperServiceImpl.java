@@ -11,6 +11,7 @@ import no.property.validation.FinnUrlValidator;
 import org.springframework.stereotype.Service;
 
 import java.net.URI;
+import java.time.Instant;
 import java.util.UUID;
 
 @Slf4j
@@ -23,8 +24,7 @@ public class FinnScraperServiceImpl implements FinnScraperService {
     private final FinnUrlValidator finnUrlValidator;
     private final PropertyEventPublisher eventPublisher;
 
-    //Vurdere sener eom vi skal endre til database isteden for in-memory
-    //TODO: fungerer kun med én kjørende instans, må løses før property skaleres
+    //TODO: fjernes når weather og crimerate ikke lenger bruker GET /api/properties
     private PropertyLocationDTO latest;
 
     @Override
@@ -37,11 +37,15 @@ public class FinnScraperServiceImpl implements FinnScraperService {
         String analysisId = UUID.randomUUID().toString();
 
         eventPublisher.publish(new PropertySubmittedEvent(
+                UUID.randomUUID(),
+                "PropertySubmitted",
+                1,
+                Instant.now(),
                 analysisId,
                 result.getUrl(),
+                result.getPostalCode(),
                 result.getLatitude(),
                 result.getLongitude(),
-                result.getPostalCode(),
                 result.getMunicipalityNumber(),
                 result.getDistrict()));
 
