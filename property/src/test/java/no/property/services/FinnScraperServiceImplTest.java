@@ -10,7 +10,8 @@ class FinnScraperServiceImplTest {
     void scrapeFinntPostalCodeCoordsTest() {
         FinnClient finnClient = new FinnClient(new RestTemplateBuilder());
         FinnHtmlParser finnHtmlParser = new FinnHtmlParser();
-        FinnScraperServiceImpl service = new FinnScraperServiceImpl(finnClient, finnHtmlParser);
+        // La til null her hvor KafkaProduceren egentlig ligger - mulig det må fikses senere
+        FinnScraperServiceImpl service = new FinnScraperServiceImpl(finnClient, finnHtmlParser, null);
 
         String url = "https://www.finn.no/realestate/homes/ad.html?finnkode=473655500";
         PropertyLocationDTO result = service.scrape(url);
