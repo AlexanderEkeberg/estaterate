@@ -53,6 +53,7 @@ public class FinnScraperServiceImpl implements FinnScraperService {
 
         eventProducer.send(event);
 
+        this.latest = result;
         return result;
     }
 
