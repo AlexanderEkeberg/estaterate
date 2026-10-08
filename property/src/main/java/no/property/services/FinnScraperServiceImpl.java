@@ -4,10 +4,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import no.property.client.FinnClient;
 import no.property.dto.PropertyLocationDTO;
+import no.property.dto.ScrapeResponseDTO;
 import no.property.validation.FinnUrlValidator;
 import org.springframework.stereotype.Service;
 
 import java.net.URI;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -23,12 +25,16 @@ public class FinnScraperServiceImpl implements FinnScraperService {
     private PropertyLocationDTO latest;
 
     @Override
-    public PropertyLocationDTO scrape(String url) {
+    public ScrapeResponseDTO scrape(String url) {
         URI uri = finnUrlValidator.validate(url);
         String html = finnClient.fetchFinnHtml(uri);
         PropertyLocationDTO result = finnAdHtmlParser.parse(html, uri.toString());
         this.latest = result;
-        return result;
+
+        String analysisId = UUID.randomUUID().toString();
+        // vurdere senere publisher.publish.
+
+        return new ScrapeResponseDTO(analysisId);
     }
 
     @Override
