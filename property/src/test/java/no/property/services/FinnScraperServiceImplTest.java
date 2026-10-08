@@ -2,6 +2,7 @@ package no.property.services;
 
 import no.property.client.FinnClient;
 import no.property.dto.PropertyLocationDTO;
+import no.property.validation.FinnUrlValidator;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.restclient.RestTemplateBuilder;
 
@@ -11,7 +12,8 @@ class FinnScraperServiceImplTest {
         FinnClient finnClient = new FinnClient(new RestTemplateBuilder());
         FinnHtmlParser finnHtmlParser = new FinnHtmlParser();
         // La til null her hvor KafkaProduceren egentlig ligger - mulig det må fikses senere
-        FinnScraperServiceImpl service = new FinnScraperServiceImpl(finnClient, finnHtmlParser, null);
+        FinnScraperServiceImpl service = new FinnScraperServiceImpl(finnClient, finnHtmlParser, null, new FinnUrlValidator());
+       
 
         String url = "https://www.finn.no/realestate/homes/ad.html?finnkode=473655500";
         PropertyLocationDTO result = service.scrape(url);

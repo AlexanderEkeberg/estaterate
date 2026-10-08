@@ -10,6 +10,10 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.UUID;
+import no.property.validation.FinnUrlValidator;
+import org.springframework.stereotype.Service;
+
+import java.net.URI;
 
 @Slf4j
 @Service
@@ -19,6 +23,7 @@ public class FinnScraperServiceImpl implements FinnScraperService {
     private final FinnClient finnClient;
     private final FinnHtmlParser finnAdHtmlParser;
     private final PropertySubmittedProducer eventProducer;
+    private final FinnUrlValidator finnUrlValidator;
 
     //Vurdere sener eom vi skal endre til database isteden for in-memory
     //TODO: fungerer kun med én kjørende instans, må løses før property skaleres
@@ -34,8 +39,9 @@ public class FinnScraperServiceImpl implements FinnScraperService {
 //    }
 
     public PropertyLocationDTO scrape(String url) {
+      URI uri = finnUrlValidator.validate(url);
         String html = finnClient.fetchFinnHtml(url);
-        PropertyLocationDTO result = finnAdHtmlParser.parse(html, url);
+        PropertyLocationDTO result = finnAdHtmlParser.parse(html, uri.toString());
 
         UUID propertyId = UUID.randomUUID();
 
@@ -53,6 +59,7 @@ public class FinnScraperServiceImpl implements FinnScraperService {
 
         eventProducer.send(event);
 
+       
         this.latest = result;
         return result;
     }

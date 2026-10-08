@@ -18,8 +18,6 @@ public class PropertyController {
 
     private final FinnScraperService finnScraperService;
 
-    // TODO: valider at request.getUrl() ikke er tom/ugyldig
-    //TODO: håndter feil fra scraping
     @PostMapping("/scrape")
     public ResponseEntity<PropertyLocationDTO> scrape(@RequestBody ScrapeRequestDTO request) {
         PropertyLocationDTO result = finnScraperService.scrape(request.getUrl());
