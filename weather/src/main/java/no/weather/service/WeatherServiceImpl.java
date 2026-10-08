@@ -26,8 +26,8 @@ public class WeatherServiceImpl implements WeatherService {
             log.warn("Ingen lokasjonsdata tilgjengelig fra property");
             return null;
         }
-        double lat = Double.parseDouble(location.getLatitude());
-        double lon = Double.parseDouble(location.getLongitude());
+        double lat = location.getLatitude();
+        double lon = location.getLongitude();
 
         String forecast = yrClient.getForecast(lat, lon);
         String history = historicalWeatherClient.getHistory(lat, lon);
