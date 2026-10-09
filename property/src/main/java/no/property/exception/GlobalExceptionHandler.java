@@ -22,4 +22,11 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_GATEWAY)
                 .body(new ErrorResponse("Could not read the listing"));
     }
+
+    @ExceptionHandler(EventPublishFailedException.class)
+    public ResponseEntity<ErrorResponse> handlePublishFailed(EventPublishFailedException e) {
+        log.error("Event publish failed", e);
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+                .body(new ErrorResponse("Service temporarily unavailable"));
+    }
 }
