@@ -10,6 +10,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class PropertyLocationDTO {
-    private String latitude;
-    private String longitude;
+    private Double latitude;
+    private Double longitude;
 }

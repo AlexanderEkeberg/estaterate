@@ -1,4 +1,4 @@
-package no.property.events;
+package no.property.event;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -7,11 +7,13 @@ public record PropertySubmittedEvent(
         UUID eventId,
         String eventType,
         int eventVersion,
-        UUID propertyId,
+        Instant occurredAt,
+        String analysisId,
         String url,
         String postalCode,
-        Double latitude,
-        Double longitude,
-        Instant occurredAt
+        double latitude,
+        double longitude,
+        String municipalityNumber,
+        String district
 ) {
 }

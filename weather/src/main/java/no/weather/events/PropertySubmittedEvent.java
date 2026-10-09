@@ -7,11 +7,13 @@ public record PropertySubmittedEvent(
         UUID eventId,
         String eventType,
         int eventVersion,
-        UUID propertyId,
+        Instant occurredAt,
+        String analysisId,
         String url,
         String postalCode,
         Double latitude,
         Double longitude,
-        Instant occurredAt
+        String municipalityNumber,
+        String district
 ) {
 }

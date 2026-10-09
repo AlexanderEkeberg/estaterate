@@ -9,6 +9,7 @@ services:
       SPRING_PROFILES_ACTIVE: docker
     depends_on:
       - consul
+      - kafka
     networks:
       - estaterate
 

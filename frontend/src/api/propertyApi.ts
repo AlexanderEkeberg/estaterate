@@ -8,7 +8,7 @@ export class ApiError extends Error {
     }
 }
 
-export async function scrapeProperty(url: string): Promise<void> {
+export async function scrapeProperty(url: string): Promise<string> {
     let response: Response;
     try {
         response = await fetch("/api/properties/scrape", {
@@ -22,4 +22,6 @@ export async function scrapeProperty(url: string): Promise<void> {
     if (!response.ok) {
         throw new ApiError(`Scraping failed: ${response.status}`, response.status);
     }
+    const data = (await response.json()) as { analysisId: string };
+    return data.analysisId;
 }

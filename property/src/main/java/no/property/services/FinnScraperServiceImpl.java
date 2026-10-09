@@ -4,16 +4,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import no.property.client.FinnClient;
 import no.property.dto.PropertyLocationDTO;
-import no.property.events.PropertySubmittedEvent;
-import no.property.kafka.PropertySubmittedProducer;
-import org.springframework.stereotype.Service;
-
-import java.time.Instant;
-import java.util.UUID;
+import no.property.dto.ScrapeResponseDTO;
+import no.property.event.PropertyEventPublisher;
+import no.property.event.PropertySubmittedEvent;
 import no.property.validation.FinnUrlValidator;
 import org.springframework.stereotype.Service;
 
 import java.net.URI;
+import java.time.Instant;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -22,46 +21,36 @@ public class FinnScraperServiceImpl implements FinnScraperService {
 
     private final FinnClient finnClient;
     private final FinnHtmlParser finnAdHtmlParser;
-    private final PropertySubmittedProducer eventProducer;
     private final FinnUrlValidator finnUrlValidator;
+    private final PropertyEventPublisher eventPublisher;
 
-    //Vurdere sener eom vi skal endre til database isteden for in-memory
-    //TODO: fungerer kun med én kjørende instans, må løses før property skaleres
+    // TODO: fjernes sammen med GET /api/properties når crimerate og school bruker Kafka.
+    // Beholdes midlertidig fordi de fortsatt henter data over REST.
     private PropertyLocationDTO latest;
 
-    // KOMMENTERT UT DENNE FOR Å REPLACE MED KAFKA EVENT
-//    @Override
-//    public PropertyLocationDTO scrape(String url) {
-//        String html = finnClient.fetchFinnHtml(url);
-//        PropertyLocationDTO result = finnAdHtmlParser.parse(html, url);
-//        this.latest = result;
-//        return result;
-//    }
-
-    public PropertyLocationDTO scrape(String url) {
-      URI uri = finnUrlValidator.validate(url);
-        String html = finnClient.fetchFinnHtml(url);
+    @Override
+    public ScrapeResponseDTO scrape(String url) {
+        URI uri = finnUrlValidator.validate(url);
+        String html = finnClient.fetchFinnHtml(uri);
         PropertyLocationDTO result = finnAdHtmlParser.parse(html, uri.toString());
+        this.latest = result;
 
-        UUID propertyId = UUID.randomUUID();
+        String analysisId = UUID.randomUUID().toString();
 
-        PropertySubmittedEvent event = new PropertySubmittedEvent(
+        eventPublisher.publish(new PropertySubmittedEvent(
                 UUID.randomUUID(),
                 "PropertySubmitted",
                 1,
-                propertyId,
+                Instant.now(),
+                analysisId,
                 result.getUrl(),
                 result.getPostalCode(),
-                Double.valueOf(result.getLatitude()),
-                Double.valueOf(result.getLongitude()),
-                Instant.now()
-        );
+                result.getLatitude(),
+                result.getLongitude(),
+                result.getMunicipalityNumber(),
+                result.getDistrict()));
 
-        eventProducer.send(event);
-
-       
-        this.latest = result;
-        return result;
+        return new ScrapeResponseDTO(analysisId);
     }
 
     @Override

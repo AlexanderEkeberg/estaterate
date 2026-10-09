@@ -3,6 +3,7 @@ package no.property.controllers;
 import lombok.RequiredArgsConstructor;
 import no.property.dto.PropertyLocationDTO;
 import no.property.dto.ScrapeRequestDTO;
+import no.property.dto.ScrapeResponseDTO;
 import no.property.services.FinnScraperService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,11 +20,12 @@ public class PropertyController {
     private final FinnScraperService finnScraperService;
 
     @PostMapping("/scrape")
-    public ResponseEntity<PropertyLocationDTO> scrape(@RequestBody ScrapeRequestDTO request) {
-        PropertyLocationDTO result = finnScraperService.scrape(request.getUrl());
+    public ResponseEntity<ScrapeResponseDTO> scrape(@RequestBody ScrapeRequestDTO request) {
+        ScrapeResponseDTO result = finnScraperService.scrape(request.getUrl());
         return ResponseEntity.ok(result);
     }
 
+    // Midlertidig: brukes internt av crimerate og school til de går over til Kafka. Ikke for frontend.
     @GetMapping
     public ResponseEntity<PropertyLocationDTO> getLatest() {
         PropertyLocationDTO latest = finnScraperService.getLatest();

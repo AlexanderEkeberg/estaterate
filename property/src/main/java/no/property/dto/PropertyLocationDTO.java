@@ -10,10 +10,8 @@ import lombok.NoArgsConstructor;
 public class PropertyLocationDTO {
     private String url;
     private String postalCode;
-    //disse er for koordinatene for weather
-    //Todo: endre til double
-    private String latitude;
-    private String longitude;
+    private double latitude;
+    private double longitude;
     private String municipalityNumber;
     private String district;
 }

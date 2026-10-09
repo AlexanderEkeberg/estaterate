@@ -22,7 +22,7 @@ public class PropertySubmittedConsumer {
         latestPropertyState.update(event);
 
         if (event.latitude() == null || event.longitude() == null) {
-            log.warn("Property has no coordinates: {}", event.propertyId());
+            log.warn("Property has no coordinates: {}", event.analysisId());
         }
 
     }
