@@ -24,7 +24,8 @@ public class FinnScraperServiceImpl implements FinnScraperService {
     private final FinnUrlValidator finnUrlValidator;
     private final PropertyEventPublisher eventPublisher;
 
-    //TODO: fjernes når weather og crimerate ikke lenger bruker GET /api/properties
+    // TODO: fjernes sammen med GET /api/properties når crimerate og school bruker Kafka.
+    // Beholdes midlertidig fordi de fortsatt henter data over REST.
     private PropertyLocationDTO latest;
 
     @Override

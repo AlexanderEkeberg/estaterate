@@ -25,6 +25,7 @@ public class PropertyController {
         return ResponseEntity.ok(result);
     }
 
+    // Midlertidig: brukes internt av crimerate og school til de går over til Kafka. Ikke for frontend.
     @GetMapping
     public ResponseEntity<PropertyLocationDTO> getLatest() {
         PropertyLocationDTO latest = finnScraperService.getLatest();
