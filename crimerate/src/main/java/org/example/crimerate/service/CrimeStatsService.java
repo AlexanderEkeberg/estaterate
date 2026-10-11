@@ -32,11 +32,12 @@ public class CrimeStatsService {
 
     public Optional<CrimeRateResponseDTO> getForProperty(int year) {
         PropertyLocationDTO location = propertyClient.getPropertyLocation();
-        if (location == null || location.getBydel() == null) {
+        if (location == null || location.getDistrict() == null) {
             log.warn("Ingen bydel tilgjengelig fra property");
             return Optional.empty();
         }
-        return getBydel(location.getBydel(), year);
+        return OsloBydel.fromFinnDistrict(location.getDistrict())
+                .flatMap(bydel -> getBydel(bydel, year));
     }
 
     @Transactional
@@ -93,9 +94,13 @@ public class CrimeStatsService {
 
     public Optional<CrimeRateResponseDTO> getBydel(String name, int year) {
         return OsloBydel.fromName(name)
-                .flatMap(bydel -> getStats(year).stream()
-                        .filter(stats -> stats.getAreaCode().equals(bydel.getCode()))
-                        .findFirst())
+                .flatMap(bydel -> getBydel(bydel, year));
+    }
+
+    private Optional<CrimeRateResponseDTO> getBydel(OsloBydel bydel, int year) {
+        return getStats(year).stream()
+                .filter(stats -> stats.getAreaCode().equals(bydel.getCode()))
+                .findFirst()
                 .map(this::toResponse);
     }
 

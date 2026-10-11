@@ -41,7 +41,7 @@ class CrimeStatsServiceTest {
     void getForProperty_returnsStatsForBydelFromProperty() {
         CrimeAreaStats sagene = new CrimeAreaStats(1L, "3", "Sagene", CrimeAreaStats.AreaType.BYDEL,
                 "OSLO_STATBANK_KRI002", 2024, 3906, 47627, 82.0, 59.0);
-        when(propertyClient.getPropertyLocation()).thenReturn(new PropertyLocationDTO("Sagene"));
+        when(propertyClient.getPropertyLocation()).thenReturn(new PropertyLocationDTO("Sagene - Torshov"));
         when(crimeAreaStatsRepo.findByAreaTypeAndYear(CrimeAreaStats.AreaType.BYDEL, 2024))
                 .thenReturn(List.of(sagene));
 
@@ -134,5 +134,14 @@ class CrimeStatsServiceTest {
         assertThat(OsloBydel.fromName("sagene")).contains(OsloBydel.SAGENE);
         assertThat(OsloBydel.fromName("St.Hanshaugen")).contains(OsloBydel.ST_HANSHAUGEN);
         assertThat(OsloBydel.fromName("Sentrum")).isEmpty();
+    }
+
+    @Test
+    void osloBydel_fromFinnDistrict_usesTextBeforeDash() {
+        assertThat(OsloBydel.fromFinnDistrict("Sagene - Torshov")).contains(OsloBydel.SAGENE);
+        assertThat(OsloBydel.fromFinnDistrict("St.Hanshaugen - Ullevål")).contains(OsloBydel.ST_HANSHAUGEN);
+        assertThat(OsloBydel.fromFinnDistrict("Stovner")).contains(OsloBydel.STOVNER);
+        assertThat(OsloBydel.fromFinnDistrict("Sentrum")).isEmpty();
+        assertThat(OsloBydel.fromFinnDistrict(null)).isEmpty();
     }
 }
