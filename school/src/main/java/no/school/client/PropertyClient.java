@@ -14,7 +14,7 @@ public class PropertyClient {
     private final String url;
     private final RestTemplate restTemplate;
 
-    public PropertyClient(RestTemplateBuilder builder, @Value("http://localhost:8090/api/properties") String url) {
+    public PropertyClient(RestTemplateBuilder builder, @Value("${property.service.url}") String url) {
         this.url = url;
         this.restTemplate = builder.build();
     }
@@ -23,7 +23,7 @@ public class PropertyClient {
         try {
             return restTemplate.getForObject(url, PropertyLocationDTO.class);
         } catch (Exception e) {
-            log.error("Could not contact Property Service", e);
+            log.error("Kan ikke nå Property Service", e);
             return null;
         }
     }
