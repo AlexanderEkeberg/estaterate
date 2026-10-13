@@ -1,10 +1,10 @@
 package org.example.crimerate.service;
 
 import org.example.crimerate.client.OsloStatbankClient;
-import org.example.crimerate.client.PropertyClient;
 import org.example.crimerate.dto.CrimeRateResponseDTO;
-import org.example.crimerate.dto.PropertyLocationDTO;
 import org.example.crimerate.entity.CrimeAreaStats;
+import org.example.crimerate.events.PropertySubmittedEvent;
+import org.example.crimerate.kafka.LatestPropertyState;
 import org.example.crimerate.repository.CrimeAreaStatsRepo;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,8 +12,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
@@ -32,7 +34,7 @@ class CrimeStatsServiceTest {
     private CrimeAreaStatsRepo crimeAreaStatsRepo;
 
     @Mock
-    private PropertyClient propertyClient;
+    private LatestPropertyState latestPropertyState;
 
     @InjectMocks
     private CrimeStatsService crimeStatsService;
@@ -41,7 +43,7 @@ class CrimeStatsServiceTest {
     void getForProperty_returnsStatsForBydelFromProperty() {
         CrimeAreaStats sagene = new CrimeAreaStats(1L, "3", "Sagene", CrimeAreaStats.AreaType.BYDEL,
                 "OSLO_STATBANK_KRI002", 2024, 3906, 47627, 82.0, 59.0);
-        when(propertyClient.getPropertyLocation()).thenReturn(new PropertyLocationDTO("Sagene - Torshov"));
+        when(latestPropertyState.getLatest()).thenReturn(eventWithDistrict("Sagene - Torshov"));
         when(crimeAreaStatsRepo.findByAreaTypeAndYear(CrimeAreaStats.AreaType.BYDEL, 2024))
                 .thenReturn(List.of(sagene));
 
@@ -52,15 +54,15 @@ class CrimeStatsServiceTest {
 
     @Test
     void getForProperty_isEmptyWhenPropertyHasNoBydel() {
-        when(propertyClient.getPropertyLocation()).thenReturn(new PropertyLocationDTO(null));
+        when(latestPropertyState.getLatest()).thenReturn(eventWithDistrict(null));
 
         assertThat(crimeStatsService.getForProperty(2024)).isEmpty();
         verifyNoInteractions(crimeAreaStatsRepo, statbankClient);
     }
 
     @Test
-    void getForProperty_isEmptyWhenPropertyIsUnavailable() {
-        when(propertyClient.getPropertyLocation()).thenReturn(null);
+    void getForProperty_isEmptyWhenNoEventIsReceived() {
+        when(latestPropertyState.getLatest()).thenReturn(null);
 
         assertThat(crimeStatsService.getForProperty(2024)).isEmpty();
     }
@@ -143,5 +145,11 @@ class CrimeStatsServiceTest {
         assertThat(OsloBydel.fromFinnDistrict("Stovner")).contains(OsloBydel.STOVNER);
         assertThat(OsloBydel.fromFinnDistrict("Sentrum")).isEmpty();
         assertThat(OsloBydel.fromFinnDistrict(null)).isEmpty();
+    }
+
+    private PropertySubmittedEvent eventWithDistrict(String district) {
+        return new PropertySubmittedEvent(UUID.randomUUID(), "PropertySubmitted", 1, Instant.now(),
+                "analysis-1", "https://www.finn.no/realestate/homes/ad.html?finnkode=1", "0474",
+                59.93, 10.76, "0301", district);
     }
 }
