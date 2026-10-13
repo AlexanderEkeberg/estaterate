@@ -9,11 +9,8 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class NsrEnhetResponseDTO {
-    @JsonProperty("TotaltAntallEnheter")
-    private int totaltAntallEnheter;
-
+public class NsrUnitResponseDTO {
     @JsonProperty("EnhetListe")
-    private List<NsrEnhetDTO> enhetListe;
+    private List<NsrUnitDTO> units;
 
 }

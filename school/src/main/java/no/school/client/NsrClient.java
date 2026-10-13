@@ -1,8 +1,8 @@
 package no.school.client;
 
 import lombok.extern.slf4j.Slf4j;
-import no.school.dto.NsrEnhetDTO;
-import no.school.dto.NsrEnhetResponseDTO;
+import no.school.dto.NsrUnitDTO;
+import no.school.dto.NsrUnitResponseDTO;
 import org.springframework.boot.restclient.RestTemplateBuilder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -19,22 +19,22 @@ public class NsrClient {
         this.restTemplate = builder.build();
     }
 
-    public NsrEnhetResponseDTO getSchoolsByKommune(String kommunenummer) {
-        String url = BASE_URL + "/enheter/kommune/" + kommunenummer;
+    public NsrUnitResponseDTO getSchoolsByMunicipality(String municipalityNumber) {
+        String url = BASE_URL + "/enheter/kommune/" + municipalityNumber;
         try {
-            return restTemplate.getForObject(url, NsrEnhetResponseDTO.class);
+            return restTemplate.getForObject(url, NsrUnitResponseDTO.class);
         } catch (Exception e) {
-            log.error("kunne ikke nå nsr-api(kommune list)", e);
+            log.error("kunne ikke nå nsr-api", e);
             return null;
         }
     }
 
-    public NsrEnhetDTO getSchoolDetail(String organisasjonsnummer) {
-        String url = BASE_URL + "/enhet/" + organisasjonsnummer;
+    public NsrUnitDTO getSchoolDetail(String organizationNumber) {
+        String url = BASE_URL + "/enhet/" + organizationNumber;
         try {
-            return restTemplate.getForObject(url, NsrEnhetDTO.class);
+            return restTemplate.getForObject(url, NsrUnitDTO.class);
         } catch (Exception e) {
-            log.error("kunne ikke nå nsr-api (enhet detail)", e);
+            log.error("kunne ikke nå nsr-api", e);
             return null;
         }
     }

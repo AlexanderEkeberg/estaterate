@@ -1,6 +1,6 @@
 package no.school.service;
 
+import no.school.dto.SchoolRatingDTO;
 public interface SchoolService {
-    String propertyConnection();
-    String nsrConnection();
+    SchoolRatingDTO getRating();
 }

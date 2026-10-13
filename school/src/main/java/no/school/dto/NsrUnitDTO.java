@@ -2,7 +2,6 @@ package no.school.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -10,33 +9,33 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 
-public class NsrEnhetDTO {
+public class NsrUnitDTO {
     @JsonProperty("Organisasjonsnummer")
-    private String organisasjonsnummer;
+    private String organizationNumber;
 
     @JsonProperty("Navn")
-    private String navn;
+    private String name;
 
     @JsonProperty("ErAktiv")
-    private boolean erAktiv;
+    private boolean active;
 
     @JsonProperty("ErGrunnskole")
-    private boolean erGrunnskole;
+    private boolean primarySchool;
 
     @JsonProperty("Koordinat")
-    private Koordinat koordinat;
+    private Koordinat coordinate;
 
     @Data
     @NoArgsConstructor
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Koordinat {
         @JsonProperty("Lengdegrad")
-        private Double lengdegrad;
+        private Double longitude;
 
         @JsonProperty("Breddegrad")
-        private Double breddegrad;
+        private Double latitude;
 
         @JsonProperty("GeoKilde")
-        private String geoKilde;
+        private String geoSource;
 
     }}

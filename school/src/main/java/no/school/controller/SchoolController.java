@@ -1,6 +1,7 @@
 package no.school.controller;
 
 import lombok.RequiredArgsConstructor;
+import no.school.dto.SchoolRatingDTO;
 import no.school.service.SchoolService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,12 +16,11 @@ public class SchoolController {
 
     private final SchoolService schoolService;
 
-    @GetMapping
-    public ResponseEntity<String> getStatus() {
-        return ResponseEntity.ok(schoolService.propertyConnection());
-    }
-    @GetMapping("/nsr-test")
-    public ResponseEntity<String> getNsrStatus() {
-        return ResponseEntity.ok(schoolService.nsrConnection());
+    @GetMapping("/rating")
+    public ResponseEntity<SchoolRatingDTO> getRating() {
+        SchoolRatingDTO rating = schoolService.getRating();
+        return rating != null
+                ? ResponseEntity.ok(rating)
+                : ResponseEntity.status(503).build();
     }
 }
