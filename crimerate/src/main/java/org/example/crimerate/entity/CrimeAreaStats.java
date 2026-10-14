@@ -53,7 +53,6 @@ public class CrimeAreaStats {
     private Double score;
 
     public enum AreaType {
-        BYDEL,
-        KOMMUNE
+        BYDEL
     }
 }

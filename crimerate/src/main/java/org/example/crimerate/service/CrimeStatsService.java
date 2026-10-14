@@ -92,11 +92,6 @@ public class CrimeStatsService {
                 .toList();
     }
 
-    public Optional<CrimeRateResponseDTO> getBydel(String name, int year) {
-        return OsloBydel.fromName(name)
-                .flatMap(bydel -> getBydel(bydel, year));
-    }
-
     private Optional<CrimeRateResponseDTO> getBydel(OsloBydel bydel, int year) {
         return getStats(year).stream()
                 .filter(stats -> stats.getAreaCode().equals(bydel.getCode()))

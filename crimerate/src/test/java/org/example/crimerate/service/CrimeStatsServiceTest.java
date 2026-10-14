@@ -69,7 +69,6 @@ class CrimeStatsServiceTest {
 
     @Test
     void buildStats_calculatesRateAndScoreFromRealNumbers() {
-        // Ekte tall for 2024
         when(statbankClient.getCrimeCounts(2024)).thenReturn(Map.of("1", 9499, "11", 2231));
         when(statbankClient.getPopulation(2024)).thenReturn(Map.of("1", 63721, "11", 34111));
 
