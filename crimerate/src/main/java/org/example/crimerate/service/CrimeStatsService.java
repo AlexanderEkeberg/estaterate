@@ -3,10 +3,10 @@ package org.example.crimerate.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.crimerate.client.OsloStatbankClient;
-import org.example.crimerate.client.PropertyClient;
 import org.example.crimerate.dto.CrimeRateResponseDTO;
-import org.example.crimerate.dto.PropertyLocationDTO;
 import org.example.crimerate.entity.CrimeAreaStats;
+import org.example.crimerate.events.PropertySubmittedEvent;
+import org.example.crimerate.kafka.LatestPropertyState;
 import org.example.crimerate.repository.CrimeAreaStatsRepo;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,15 +28,16 @@ public class CrimeStatsService {
 
     private final OsloStatbankClient statbankClient;
     private final CrimeAreaStatsRepo crimeAreaStatsRepo;
-    private final PropertyClient propertyClient;
+    private final LatestPropertyState latestPropertyState;
 
     public Optional<CrimeRateResponseDTO> getForProperty(int year) {
-        PropertyLocationDTO location = propertyClient.getPropertyLocation();
-        if (location == null || location.getBydel() == null) {
+        PropertySubmittedEvent event = latestPropertyState.getLatest();
+        if (event == null || event.district() == null) {
             log.warn("Ingen bydel tilgjengelig fra property");
             return Optional.empty();
         }
-        return getBydel(location.getBydel(), year);
+        return OsloBydel.fromFinnDistrict(event.district())
+                .flatMap(bydel -> getBydel(bydel, year));
     }
 
     @Transactional
@@ -91,11 +92,10 @@ public class CrimeStatsService {
                 .toList();
     }
 
-    public Optional<CrimeRateResponseDTO> getBydel(String name, int year) {
-        return OsloBydel.fromName(name)
-                .flatMap(bydel -> getStats(year).stream()
-                        .filter(stats -> stats.getAreaCode().equals(bydel.getCode()))
-                        .findFirst())
+    private Optional<CrimeRateResponseDTO> getBydel(OsloBydel bydel, int year) {
+        return getStats(year).stream()
+                .filter(stats -> stats.getAreaCode().equals(bydel.getCode()))
+                .findFirst()
                 .map(this::toResponse);
     }
 

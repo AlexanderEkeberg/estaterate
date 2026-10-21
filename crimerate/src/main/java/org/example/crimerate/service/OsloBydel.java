@@ -47,6 +47,13 @@ public enum OsloBydel {
                 .findFirst();
     }
 
+    public static Optional<OsloBydel> fromFinnDistrict(String district) {
+        if (district == null) {
+            return Optional.empty();
+        }
+        return fromName(district.split(" - ", 2)[0]);
+    }
+
     private static String normalize(String name) {
         return name.replaceAll("\\s+", "").toLowerCase(Locale.ROOT);
     }
