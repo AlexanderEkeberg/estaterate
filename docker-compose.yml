@@ -37,6 +37,7 @@ services:
     environment:
       SPRING_PROFILES_ACTIVE: docker
     depends_on:
+      - property
       - consul
       - kafka
     networks:
@@ -53,6 +54,7 @@ services:
       - weather
       - school
       - consul
+      - crimerate
     networks:
       - estaterate
 

@@ -23,6 +23,7 @@ mvn clean spring-boot:run
 * **Property API:** [http://localhost:8090/swagger-ui/index.html](http://localhost:8090/swagger-ui/index.html) (Port 8090)
 * **Weather API:** [http://localhost:8082/swagger-ui/index.html](http://localhost:8082/swagger-ui/index.html) (Port 8082)
 * **School API:** [http://localhost:8083/swagger-ui/index.html](http://localhost:8083/swagger-ui/index.html) (Port 8083)
+* **Crimerate API:** [http://localhost:8084/swagger-ui/index.html](http://localhost:8084/swagger-ui/index.html) (Port 8084)
 
 
 
