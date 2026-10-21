@@ -2,6 +2,7 @@ package no.weather.client;
 
 
 import lombok.extern.slf4j.Slf4j;
+import no.weather.client.dto.YrResponse;
 import org.springframework.boot.restclient.RestTemplateBuilder;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -24,7 +25,7 @@ public class YrClient {
         this.restTemplate = builder.build();
     }
 
-    public String getForecast(double lat, double lon) {
+    public YrResponse getForecast(double lat, double lon) {
         String url = UriComponentsBuilder.fromUriString(BASE_URL)
                 .queryParam("lat", lat)
                 .queryParam("lon", lon)
@@ -35,8 +36,8 @@ public class YrClient {
         HttpEntity<Void> request = new HttpEntity<>(headers);
 
         try {
-            ResponseEntity<String> response =
-                    restTemplate.exchange(url, HttpMethod.GET, request, String.class);
+            ResponseEntity<YrResponse> response =
+                    restTemplate.exchange(url, HttpMethod.GET, request, YrResponse.class);
             return response.getBody();
         } catch (Exception e) {
             log.error("Could not contact api", e);

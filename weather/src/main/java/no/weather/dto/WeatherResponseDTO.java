@@ -1,6 +1,7 @@
 package no.weather.dto;
 
 import lombok.AllArgsConstructor;
+import no.weather.client.dto.YrResponse;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -8,6 +9,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class WeatherResponseDTO {
-    private String forecast;
+    private YrResponse forecast;
     private String history;
 }

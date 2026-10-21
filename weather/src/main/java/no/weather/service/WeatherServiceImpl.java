@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import no.weather.client.HistoricalWeatherClient;
 import no.weather.client.PropertyClient;
 import no.weather.client.YrClient;
+import no.weather.client.dto.YrResponse;
 import no.weather.dto.WeatherResponseDTO;
 import no.weather.events.PropertySubmittedEvent;
 import no.weather.kafka.LatestPropertyState;
@@ -48,7 +49,7 @@ public class WeatherServiceImpl implements WeatherService {
         double lat = event.latitude();
         double lon = event.longitude();
 
-        String forecast = yrClient.getForecast(lat, lon);
+        YrResponse forecast = yrClient.getForecast(lat, lon);
         String history = historicalWeatherClient.getHistory(lat, lon);
 
         return new WeatherResponseDTO(forecast, history);
