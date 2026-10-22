@@ -4,6 +4,14 @@ public record MonthlyWeather(
         int year,
         int month,
         double avgTempC,
-        double precipitationMm
+        double avgMaxTempC,
+        double avgMinTempC,
+        double precipitationMm,
+        int rainyDays,
+        double snowfallCm,
+        double sunshineHours,
+        double avgMaxWindKmh,
+        int frostDays,
+        boolean complete
 ) {
 }
