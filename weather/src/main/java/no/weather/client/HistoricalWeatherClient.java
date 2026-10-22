@@ -1,6 +1,7 @@
 package no.weather.client;
 
 import lombok.extern.slf4j.Slf4j;
+import no.weather.client.dto.OpenMeteoResponse;
 import org.springframework.boot.restclient.RestTemplateBuilder;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -17,6 +18,8 @@ import java.time.LocalDate;
 public class HistoricalWeatherClient {
 
     private static final String BASE_URL = "https://archive-api.open-meteo.com/v1/archive";
+    private static final int HISTORY_YEARS = 5;
+    private static final int ARCHIVE_DELAY_DAYS = 5;
 
     private final RestTemplate restTemplate;
 
@@ -24,16 +27,17 @@ public class HistoricalWeatherClient {
         this.restTemplate = builder.build();
     }
 
-    public String getHistory(double lat, double lon) {
-        LocalDate today = LocalDate.now();
-        LocalDate oneYearAgo = today.minusYears(1);
+    public OpenMeteoResponse getHistory(double lat, double lon) {
+        // arkivet ligger noen dager bak, så siste dagene kan mangle data
+        LocalDate endDate = LocalDate.now().minusDays(ARCHIVE_DELAY_DAYS);
+        LocalDate startDate = endDate.minusYears(HISTORY_YEARS);
 
         // bestmmer hvilke dataer vi henter ut fra apiet til open meteo.
         String url = UriComponentsBuilder.fromUriString(BASE_URL)
                 .queryParam("latitude", lat)
                 .queryParam("longitude", lon)
-                .queryParam("start_date", oneYearAgo)
-                .queryParam("end_date", today)
+                .queryParam("start_date", startDate)
+                .queryParam("end_date", endDate)
                 .queryParam("daily", "temperature_2m_max,temperature_2m_min,precipitation_sum")
                 .queryParam("timezone", "Europe/Oslo")
                 .toUriString();
@@ -42,8 +46,8 @@ public class HistoricalWeatherClient {
         HttpEntity<Void> request = new HttpEntity<>(headers);
 
         try {
-            ResponseEntity<String> response =
-                    restTemplate.exchange(url, HttpMethod.GET, request, String.class);
+            ResponseEntity<OpenMeteoResponse> response =
+                    restTemplate.exchange(url, HttpMethod.GET, request, OpenMeteoResponse.class);
             return response.getBody();
         } catch (Exception e) {
             log.error("Could not contact Open-Meteo API", e);
