@@ -1,10 +1,13 @@
 package no.weather.mapper;
 
 import no.weather.client.dto.OpenMeteoResponse;
+import no.weather.client.dto.YrResponse;
+import no.weather.dto.DailyForecast;
 import no.weather.dto.MonthlyAverage;
 import no.weather.dto.MonthlyWeather;
 import org.junit.jupiter.api.Test;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.ArrayList;
@@ -12,6 +15,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class WeatherMapperTest {
@@ -223,5 +227,127 @@ class WeatherMapperTest {
         List<MonthlyAverage> averages = mapper.toMonthlyAverages(monthly);
 
         assertEquals(List.of(1, 2), averages.stream().map(MonthlyAverage::month).toList());
+    }
+
+    // --- Yr-varsel ---
+
+    // tidspunkt med timesverdi (next_1_hours), som de første dagene hos Yr
+    private static YrResponse.TimeSeries hour(String utcTime, double temp, double precipitation, String symbol) {
+        return new YrResponse.TimeSeries(Instant.parse(utcTime), new YrResponse.Data(
+                new YrResponse.InstantData(new YrResponse.InstantDetails(temp)),
+                new YrResponse.Period(new YrResponse.Summary(symbol),
+                        new YrResponse.PeriodDetails(precipitation, null, null)),
+                null));
+    }
+
+    // tidspunkt med 6-timersverdi (next_6_hours), som resten av varselet
+    private static YrResponse.TimeSeries sixHours(String utcTime, double temp, double precipitation,
+                                                  double max, double min, String symbol) {
+        return new YrResponse.TimeSeries(Instant.parse(utcTime), new YrResponse.Data(
+                new YrResponse.InstantData(new YrResponse.InstantDetails(temp)),
+                null,
+                new YrResponse.Period(new YrResponse.Summary(symbol),
+                        new YrResponse.PeriodDetails(precipitation, max, min))));
+    }
+
+    private static YrResponse forecastOf(YrResponse.TimeSeries... steps) {
+        return new YrResponse(new YrResponse.Properties(List.of(steps)));
+    }
+
+    @Test
+    void forecastForAnHourlyDay() {
+        // 06, 10 og 14 UTC er 08, 12 og 16 i Oslo
+        YrResponse response = forecastOf(
+                hour("2026-10-22T06:00:00Z", 5.0, 0.2, "cloudy"),
+                hour("2026-10-22T10:00:00Z", 8.0, 0.5, "rain"),
+                hour("2026-10-22T14:00:00Z", 6.0, 0.3, "clearsky_day"));
+
+        List<DailyForecast> forecast = mapper.toForecast(response);
+
+        assertEquals(1, forecast.size());
+        DailyForecast day = forecast.get(0);
+        assertEquals(LocalDate.of(2026, 10, 22), day.date());
+        assertEquals(5.0, day.minTempC());
+        assertEquals(8.0, day.maxTempC());
+        assertEquals(1.0, day.precipitationMm());
+        assertEquals("rain", day.symbol());
+    }
+
+    @Test
+    void forecastForASixHourlyDayUsesMinAndMaxOfEachPeriod() {
+        // 00, 06, 12 og 18 UTC er 02, 08, 14 og 20 i Oslo
+        YrResponse response = forecastOf(
+                sixHours("2026-10-26T00:00:00Z", 4.0, 0.0, 5.0, 2.0, "clearsky_night"),
+                sixHours("2026-10-26T06:00:00Z", 5.0, 1.0, 8.0, 3.0, "cloudy"),
+                sixHours("2026-10-26T12:00:00Z", 9.0, 2.5, 11.0, 7.0, "rain"),
+                sixHours("2026-10-26T18:00:00Z", 6.0, 0.5, 8.0, 4.0, "partlycloudy_night"));
+
+        DailyForecast day = mapper.toForecast(response).get(0);
+
+        assertEquals(2.0, day.minTempC());
+        assertEquals(11.0, day.maxTempC());
+        assertEquals(4.0, day.precipitationMm());
+        assertEquals("rain", day.symbol());   // 14:00 i Oslo er nærmest kl. 12
+    }
+
+    @Test
+    void groupsByDateInOsloAndNotUtc() {
+        // 23:30 og 00:30 i Oslo, men samme dato i UTC
+        YrResponse response = forecastOf(
+                hour("2026-10-22T21:30:00Z", 5.0, 0.0, "cloudy"),
+                hour("2026-10-22T22:30:00Z", 4.0, 0.0, "cloudy"));
+
+        List<DailyForecast> forecast = mapper.toForecast(response);
+
+        assertEquals(List.of(LocalDate.of(2026, 10, 22), LocalDate.of(2026, 10, 23)),
+                forecast.stream().map(DailyForecast::date).toList());
+    }
+
+    @Test
+    void hourlyStepsDoNotAlsoCountTheirSixHourPeriod() {
+        // timestidspunkt med både next_1_hours og next_6_hours, slik Yr sender dem
+        YrResponse.TimeSeries step = new YrResponse.TimeSeries(Instant.parse("2026-10-22T10:00:00Z"),
+                new YrResponse.Data(
+                        new YrResponse.InstantData(new YrResponse.InstantDetails(8.0)),
+                        new YrResponse.Period(new YrResponse.Summary("rain"),
+                                new YrResponse.PeriodDetails(0.5, null, null)),
+                        new YrResponse.Period(new YrResponse.Summary("cloudy"),
+                                new YrResponse.PeriodDetails(9.9, 30.0, -30.0))));
+
+        DailyForecast day = mapper.toForecast(forecastOf(step)).get(0);
+
+        assertEquals(0.5, day.precipitationMm());
+        assertEquals(8.0, day.minTempC());
+        assertEquals(8.0, day.maxTempC());
+    }
+
+    @Test
+    void skipsDaysWithoutTemperatureAndToleratesMissingFields() {
+        YrResponse.TimeSeries withoutTemperature = new YrResponse.TimeSeries(
+                Instant.parse("2026-10-22T10:00:00Z"), new YrResponse.Data(null, null, null));
+        YrResponse.TimeSeries withoutPeriods = new YrResponse.TimeSeries(
+                Instant.parse("2026-10-23T10:00:00Z"), new YrResponse.Data(
+                new YrResponse.InstantData(new YrResponse.InstantDetails(7.0)), null, null));
+
+        List<DailyForecast> forecast = mapper.toForecast(forecastOf(withoutTemperature, withoutPeriods));
+
+        assertEquals(1, forecast.size());
+        assertEquals(LocalDate.of(2026, 10, 23), forecast.get(0).date());
+        assertEquals(0.0, forecast.get(0).precipitationMm());
+        assertNull(forecast.get(0).symbol());
+    }
+
+    @Test
+    void forecastIsSortedAndLimitedToTenDays() {
+        YrResponse.TimeSeries[] steps = new YrResponse.TimeSeries[12];
+        for (int i = 0; i < 12; i++) {
+            steps[i] = hour(LocalDate.of(2026, 10, 12).plusDays(11 - i) + "T10:00:00Z", 5.0, 0.0, "cloudy");
+        }
+
+        List<DailyForecast> forecast = mapper.toForecast(forecastOf(steps));
+
+        assertEquals(10, forecast.size());
+        assertEquals(LocalDate.of(2026, 10, 12), forecast.get(0).date());
+        assertEquals(LocalDate.of(2026, 10, 21), forecast.get(9).date());
     }
 }
