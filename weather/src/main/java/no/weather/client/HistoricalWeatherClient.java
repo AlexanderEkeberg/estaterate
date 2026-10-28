@@ -23,8 +23,8 @@ public class HistoricalWeatherClient {
 
     private static final int HISTORY_YEARS = 5;
     private static final int ARCHIVE_DELAY_DAYS = 5;
-    private static final Duration CONNECT_TIMEOUT = Duration.ofSeconds(5);
-    private static final Duration READ_TIMEOUT = Duration.ofSeconds(15);
+    private static final Duration CONNECT_TIMEOUT = Duration.ofSeconds(3);
+    private static final Duration READ_TIMEOUT = Duration.ofSeconds(10);
 
     private static final String DAILY_VARIABLES = String.join(",",
             "temperature_2m_mean",
@@ -73,7 +73,7 @@ public class HistoricalWeatherClient {
             body = HttpRetry.call(() ->
                     restTemplate.exchange(url, HttpMethod.GET, request, OpenMeteoResponse.class).getBody());
         } catch (RestClientException e) {
-            log.error("Could not contact Open-Meteo API", e);
+            log.warn("Could not contact Open-Meteo API: {}", e.getMessage());
             throw new WeatherApiException("Could not contact Open-Meteo API", e);
         }
         validate(body);

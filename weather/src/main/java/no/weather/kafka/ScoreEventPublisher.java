@@ -15,7 +15,16 @@ public class ScoreEventPublisher {
     private final KafkaTemplate<String, ScoreEvent> kafkaTemplate;
 
     public void publish(ScoreEvent event) {
-        kafkaTemplate.send(TOPIC, event.analysisId(), event);
-        log.info("Sent score event: {} {}", event.analysisId(), event.status());
+        try {
+            kafkaTemplate.send(TOPIC, event.analysisId(), event).whenComplete((result, error) -> {
+                if (error != null) {
+                    log.error("Could not send score event {}", event.analysisId(), error);
+                } else {
+                    log.info("Sent score event: {} {}", event.analysisId(), event.status());
+                }
+            });
+        } catch (Exception e) {
+            log.error("Could not send score event {}", event.analysisId(), e);
+        }
     }
 }

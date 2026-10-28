@@ -20,8 +20,8 @@ import java.time.Duration;
 @Service
 public class YrClient {
 
-    private static final Duration CONNECT_TIMEOUT = Duration.ofSeconds(5);
-    private static final Duration READ_TIMEOUT = Duration.ofSeconds(10);
+    private static final Duration CONNECT_TIMEOUT = Duration.ofSeconds(3);
+    private static final Duration READ_TIMEOUT = Duration.ofSeconds(8);
 
     private final String baseUrl;
     private final RestTemplate restTemplate;
@@ -52,7 +52,7 @@ public class YrClient {
             body = HttpRetry.call(() ->
                     restTemplate.exchange(url, HttpMethod.GET, request, YrResponse.class).getBody());
         } catch (RestClientException e) {
-            log.error("Could not contact Yr API", e);
+            log.warn("Could not contact Yr API: {}", e.getMessage());
             throw new WeatherApiException("Could not contact Yr API", e);
         }
         validate(body);

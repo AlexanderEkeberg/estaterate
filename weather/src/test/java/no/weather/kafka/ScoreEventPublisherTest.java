@@ -3,6 +3,7 @@ package no.weather.kafka;
 import no.weather.dto.WeatherData;
 import no.weather.events.ScoreEvent;
 import no.weather.mock.MockWeatherData;
+import org.apache.kafka.common.KafkaException;
 import org.apache.kafka.common.header.internals.RecordHeaders;
 import org.junit.jupiter.api.Test;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -10,12 +11,15 @@ import org.springframework.kafka.support.serializer.JacksonJsonSerializer;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 class ScoreEventPublisherTest {
 
@@ -24,13 +28,22 @@ class ScoreEventPublisherTest {
     void sendsToScoreEventsWithAnalysisIdAsKey() {
         KafkaTemplate<String, ScoreEvent> kafkaTemplate = mock(KafkaTemplate.class);
         ScoreEvent event = ScoreEvent.failed("a1", "WEATHER", "feil");
+        when(kafkaTemplate.send("score-events", "a1", event)).thenReturn(CompletableFuture.completedFuture(null));
 
         new ScoreEventPublisher(kafkaTemplate).publish(event);
 
         verify(kafkaTemplate).send("score-events", "a1", event);
     }
 
-    // sjekker selve JSON-en scoring får: ingen typeheader, ISO-datoer og score = null
+    @Test
+    @SuppressWarnings("unchecked")
+    void doesNotThrowWhenKafkaIsDown() {
+        KafkaTemplate<String, ScoreEvent> kafkaTemplate = mock(KafkaTemplate.class);
+        ScoreEvent event = ScoreEvent.failed("a1", "WEATHER", "feil");
+        when(kafkaTemplate.send("score-events", "a1", event)).thenThrow(new KafkaException("Send failed"));
+
+        assertDoesNotThrow(() -> new ScoreEventPublisher(kafkaTemplate).publish(event));
+    }
     @Test
     void serializesToJsonScoringCanRead() {
         MockWeatherData mock = new MockWeatherData();
