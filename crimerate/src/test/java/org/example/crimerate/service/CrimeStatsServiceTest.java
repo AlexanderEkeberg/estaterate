@@ -8,6 +8,8 @@ import org.example.crimerate.kafka.LatestPropertyState;
 import org.example.crimerate.repository.CrimeAreaStatsRepo;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -129,20 +131,42 @@ class CrimeStatsServiceTest {
         assertThat(crimeStatsService.score(300)).isEqualTo(0.0);
     }
 
-    @Test
-    void osloBydel_fromName_ignoresCaseAndSpaces() {
-        assertThat(OsloBydel.fromName("Sagene")).contains(OsloBydel.SAGENE);
-        assertThat(OsloBydel.fromName("sagene")).contains(OsloBydel.SAGENE);
-        assertThat(OsloBydel.fromName("St.Hanshaugen")).contains(OsloBydel.ST_HANSHAUGEN);
-        assertThat(OsloBydel.fromName("Sentrum")).isEmpty();
+    @ParameterizedTest
+    @CsvSource({
+            "Gamle Oslo, GAMLE_OSLO",
+            "Helsfyr - Sinsen, GAMLE_OSLO",
+            "Grünerløkka - Sofienberg, GRUNERLOKKA",
+            "Sagene - Torshov, SAGENE",
+            "St.Hanshaugen - Ullevål, ST_HANSHAUGEN",
+            "Bygdøy - Frogner, FROGNER",
+            "Uranienborg - Majorstuen, FROGNER",
+            "Ullern, ULLERN",
+            "Vinderen, VESTRE_AKER",
+            "Røa, VESTRE_AKER",
+            "Grefsen - Kjelsås, NORDRE_AKER",
+            "Sogn, NORDRE_AKER",
+            "Bjerke, BJERKE",
+            "Grorud, GRORUD",
+            "Romsås, GRORUD",
+            "Stovner, STOVNER",
+            "Furuset, ALNA",
+            "Hellerud, ALNA",
+            "Østensjø, OSTENSJO",
+            "Bøler, OSTENSJO",
+            "Manglerud, OSTENSJO",
+            "Nordstrand, NORDSTRAND",
+            "Lambertseter, NORDSTRAND",
+            "Ekeberg - Bekkelaget, NORDSTRAND",
+            "Søndre Nordstrand, SONDRE_NORDSTRAND"
+    })
+    void osloBydel_fromFinnDistrict_mapsEveryFinnArea(String finnArea, OsloBydel expected) {
+        assertThat(OsloBydel.fromFinnDistrict(finnArea)).contains(expected);
     }
 
     @Test
-    void osloBydel_fromFinnDistrict_usesTextBeforeDash() {
-        assertThat(OsloBydel.fromFinnDistrict("Sagene - Torshov")).contains(OsloBydel.SAGENE);
-        assertThat(OsloBydel.fromFinnDistrict("St.Hanshaugen - Ullevål")).contains(OsloBydel.ST_HANSHAUGEN);
-        assertThat(OsloBydel.fromFinnDistrict("Stovner")).contains(OsloBydel.STOVNER);
+    void osloBydel_fromFinnDistrict_isEmptyForAreasWithoutBydel() {
         assertThat(OsloBydel.fromFinnDistrict("Sentrum")).isEmpty();
+        assertThat(OsloBydel.fromFinnDistrict("Marka")).isEmpty();
         assertThat(OsloBydel.fromFinnDistrict(null)).isEmpty();
     }
 
