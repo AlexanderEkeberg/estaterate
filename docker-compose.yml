@@ -58,6 +58,50 @@ services:
     networks:
       - estaterate
 
+  aggregator:
+    build:
+      context: ./aggregator
+      dockerfile: Dockerfile
+    ports:
+      - "8085:8085"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    depends_on:
+     aggregator-db:
+      condition: service_healthy
+     property:
+      condition: service_started
+     weather:
+      condition: service_started
+     school:
+      condition: service_started
+     crimerate:
+      condition: service_started
+     consul:
+      condition: service_started
+     kafka:
+      condition: service_started
+    networks:
+      - estaterate
+
+  aggregator-db:
+    image: postgres:17
+    container_name: aggregator-db
+    environment:
+      POSTGRES_DB: aggregator
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./data/aggregator-db:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d aggregator" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - estaterate
 
   consul:
     image: hashicorp/consul:2.0.0
@@ -86,20 +130,6 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
     networks:
       - estaterate
-
-#  district:
-#    build:
-#      context: ./district
-#      dockerfile: Dockerfile
-#    ports:
-#      - "8081:8081"
-#    environment:
-#      SPRING_PROFILES_ACTIVE: docker
-#    depends_on:
-#      - property
-#      - consul
-#    networks:
-#      - estaterate
 
   school:
     build:

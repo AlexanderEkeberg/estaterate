@@ -25,6 +25,8 @@ mvn clean spring-boot:run
 * **School API:** [http://localhost:8083/swagger-ui/index.html](http://localhost:8083/swagger-ui/index.html) (Port 8083)
 * **Crimerate API:** [http://localhost:8084/swagger-ui/index.html](http://localhost:8084/swagger-ui/index.html) (Port 8084)
 
+## Consul
+http://localhost:8500/ui/dc1/services
 
 
 ## Docker (USE THIS NOW)
@@ -39,6 +41,12 @@ Start the services (run if nothing has been changed):
 docker compose up -d
 ```
 
+To get a clean sheet and clear the database:
+```bash
+docker compose down -v
+```
+and delete the "data" folder at root level
+
 Gateway port: [http://localhost:8080](http://localhost:8080) 
 <br>
 For example do a GET request to [http://localhost:8080/api/properties](http://localhost:8080/api/properties)
@@ -49,6 +57,6 @@ For example do a GET request to [http://localhost:8080/api/properties](http://lo
 Link to import postman requests:
 https://richard-1476962.postman.co/workspace/Richard's-Workspace~c2ffdcc7-39f2-41cd-8bc0-30991787d344/collection/44499091-6da4f4cd-cae1-406e-ab61-140674cd3b51?action=share&creator=44499091
 
-Do the POST request first to gather the data from Finn. The GET requests can be used afterwards (The GET for school is currently not working since it has not been connected properly yet)
+Do the POST request first to gather the data from Finn. The GET requests can be used afterwards 
 
 
