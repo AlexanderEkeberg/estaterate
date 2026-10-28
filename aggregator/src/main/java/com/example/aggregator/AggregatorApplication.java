@@ -1,13 +1,13 @@
-package no.district;
+package com.example.aggregator;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class DistrictApplication {
+public class AggregatorApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(DistrictApplication.class, args);
+        SpringApplication.run(AggregatorApplication.class, args);
     }
 
 }

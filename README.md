@@ -25,6 +25,8 @@ mvn clean spring-boot:run
 * **School API:** [http://localhost:8083/swagger-ui/index.html](http://localhost:8083/swagger-ui/index.html) (Port 8083)
 * **Crimerate API:** [http://localhost:8084/swagger-ui/index.html](http://localhost:8084/swagger-ui/index.html) (Port 8084)
 
+## Consul
+http://localhost:8500/ui/dc1/services
 
 
 ## Docker (USE THIS NOW)
