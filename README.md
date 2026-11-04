@@ -1,6 +1,6 @@
 # Temporary README for application setup locally and in Docker
 
-## Local
+## Local (Deprecated)
 
 ### Terminal 1: Property
 ```bash
@@ -33,15 +33,15 @@ http://localhost:8500/ui/dc1/services
 
 Build and start the services (first time / after changing dockerfiles, code or config):
 ```bash
-docker compose up -d --build --scale property=3 --scale weather=3 --scale school=3 --scale crimerate=3
+docker compose up -d --build 
 ```
 
 Start the services (run if nothing has been changed):
 ```bash
-docker compose up -d --scale property=3 --scale weather=3 --scale school=3 --scale crimerate=3
+docker compose up -d 
 ```
 
-To get a clean sheet and clear the database:
+To get a clean sheet and clear the aggregator database:
 ```bash
 docker compose down -v
 ```
