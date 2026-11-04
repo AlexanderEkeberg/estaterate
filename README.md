@@ -31,12 +31,12 @@ mvn clean spring-boot:run
 
 Build and start the services (first time / after changing dockerfiles, code or config):
 ```bash
-docker compose up --build -d
+docker compose up -d --build --scale property=3 --scale weather=3 --scale school=3 --scale crimerate=3
 ```
 
 Start the services (run if nothing has been changed):
 ```bash
-docker compose up -d
+docker compose up -d --scale property=3 --scale weather=3 --scale school=3 --scale crimerate=3
 ```
 
 Gateway port: [http://localhost:8080](http://localhost:8080) 
