@@ -22,6 +22,7 @@ import java.util.UUID;
 public class FinnScraperServiceImpl implements FinnScraperService {
 
     static final String MOCK_MESSAGE = "We could not read the listing. The report shows sample data from Oslo.";
+    static final String DEMO_MESSAGE = "FINN blocks automated access. The report uses saved data for this listing.";
 
     private final FinnClient finnClient;
     private final FinnHtmlParser finnAdHtmlParser;
@@ -59,10 +60,18 @@ public class FinnScraperServiceImpl implements FinnScraperService {
 
         // hele boligen er enten fra annonsen eller fra mock, aldri en blanding
         CoordinatesSource source = CoordinatesSource.SCRAPED;
-        PropertyLocationDTO property = scrapeOrNull(uri);
-        if (property == null) {
+        String message = null;
+        PropertyLocationDTO property = demoListingOrNull(uri);
+        if (property != null) {
             source = CoordinatesSource.MOCK;
-            property = mock.property(uri.toString());
+            message = DEMO_MESSAGE;
+        } else {
+            property = scrapeOrNull(uri);
+            if (property == null) {
+                source = CoordinatesSource.MOCK;
+                message = MOCK_MESSAGE;
+                property = mock.fallback(uri.toString());
+            }
         }
         this.latest = property;
 
@@ -82,8 +91,19 @@ public class FinnScraperServiceImpl implements FinnScraperService {
                 property.getMunicipalityNumber(),
                 property.getDistrict()));
 
-        String message = source == CoordinatesSource.MOCK ? MOCK_MESSAGE : null;
         return new ScrapeResponseDTO(analysisId, source, message);
+    }
+
+    // demo-annonser er lest av manuelt og brukes uten å spørre FINN, som blokkerer automatisk henting
+    private PropertyLocationDTO demoListingOrNull(URI uri) {
+        if (!fallbackEnabled) {
+            return null;
+        }
+        PropertyLocationDTO demo = mock.demoListing(uri).orElse(null);
+        if (demo != null) {
+            log.info("Using saved demo listing: {}", uri);
+        }
+        return demo;
     }
 
     // gir null hvis mock skal brukes

@@ -46,15 +46,14 @@ class FinnHtmlParser {
     }
 
     private String extractDistrict(String html) {
-        String district = null;
         Matcher matcher = LOCATION_LINK_PATTERN.matcher(html);
         while (matcher.find()) {
             String locationId = matcher.group(1);
             if (locationId.startsWith("2.") || locationId.startsWith("1.20061.")) {
-                district = matcher.group(2).trim();
+                return matcher.group(2).trim();
             }
         }
-        return district;
+        return null;
     }
 
     private Double parseCoordinate(String raw) {

@@ -58,4 +58,15 @@ class FinnHtmlParserTest {
         assertThatThrownBy(() -> parser.parse("<html>not a listing</html>", URL))
                 .isInstanceOf(ScrapingFailedException.class);
     }
+
+    @Test
+    void usesFirstAreaLinkBecauseLaterLinksBelongToOtherListings() {
+        String html = """
+                <a href="/realestate/homes/search.html?location=1.20061.20507">Bygdøy - Frogner</a>
+                <script>streamController.enqueue("[\\"postalCode\\",\\"0272\\",\\"lat\\",59.9122,\\"lng\\",10.7101,\\"municipalityNumber\\",301]")</script>
+                <a href="/realestate/homes/search.html?location=1.20061.20511">Grünerløkka - Sofienberg</a>
+                """;
+
+        assertThat(parser.parse(html, URL).getDistrict()).isEqualTo("Bygdøy - Frogner");
+    }
 }

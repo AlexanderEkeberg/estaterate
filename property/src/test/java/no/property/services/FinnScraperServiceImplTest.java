@@ -53,7 +53,7 @@ class FinnScraperServiceImplTest {
     }
 
     private void assertWholeMockProperty(PropertySubmittedEvent event) {
-        var expected = mock.property(URL);
+        var expected = mock.fallback(URL);
         assertThat(event.coordinatesSource()).isEqualTo(CoordinatesSource.MOCK);
         assertThat(event.url()).isEqualTo(URL);
         assertThat(event.postalCode()).isEqualTo(expected.getPostalCode());
@@ -122,5 +122,29 @@ class FinnScraperServiceImplTest {
         assertThatThrownBy(() -> service(returning(WITH_COORDINATES), true, true).scrape("https://example.com/"))
                 .isInstanceOf(InvalidFinnUrlException.class);
         assertThat(published).isEmpty();
+    }
+
+    @Test
+    void demoListingIsUsedWithoutAskingFinn() {
+        String url = "https://www.finn.no/realestate/homes/ad.html?finnkode=478564477";
+
+        ScrapeResponseDTO response = service(returning(WITH_COORDINATES), true, false).scrape(url);
+
+        PropertySubmittedEvent event = published.getFirst();
+        assertThat(fetchCalls).isZero();
+        assertThat(event.coordinatesSource()).isEqualTo(CoordinatesSource.MOCK);
+        assertThat(event.postalCode()).isEqualTo("0272");
+        assertThat(event.district()).isEqualTo("Bygdøy - Frogner");
+        assertThat(event.url()).isEqualTo(url);
+        assertThat(response.getMessage()).isEqualTo(FinnScraperServiceImpl.DEMO_MESSAGE);
+    }
+
+    @Test
+    void demoListingIsIgnoredWhenFallbackIsDisabled() {
+        service(returning(WITH_COORDINATES), false, false)
+                .scrape("https://www.finn.no/realestate/homes/ad.html?finnkode=478564477");
+
+        assertThat(fetchCalls).isEqualTo(1);
+        assertThat(published.getFirst().coordinatesSource()).isEqualTo(CoordinatesSource.SCRAPED);
     }
 }
