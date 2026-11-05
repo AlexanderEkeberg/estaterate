@@ -1,0 +1,55 @@
+{
+  "fallback": {
+    "postalCode": "0552",
+    "latitude": 59.9226,
+    "longitude": 10.7590,
+    "municipalityNumber": "0301",
+    "district": "Grünerløkka - Sofienberg"
+  },
+  "listings": [
+    {
+      "finnkode": "478564477",
+      "address": "Niels Juels gate 7, 0272 Oslo",
+      "postalCode": "0272",
+      "latitude": 59.9122,
+      "longitude": 10.7101,
+      "municipalityNumber": "0301",
+      "district": "Bygdøy - Frogner",
+      "askingPrice": 17800000,
+      "usableAreaInternal": 179
+    },
+    {
+      "finnkode": "476403696",
+      "address": "Sofienberggata 23B, 0558 Oslo",
+      "postalCode": "0558",
+      "latitude": 59.9221,
+      "longitude": 10.7627,
+      "municipalityNumber": "0301",
+      "district": "Grünerløkka - Sofienberg",
+      "askingPrice": 5900000,
+      "usableAreaInternal": 48
+    },
+    {
+      "finnkode": "480187265",
+      "address": "Sars' gate 60, 0564 Oslo",
+      "postalCode": "0564",
+      "latitude": 59.9232,
+      "longitude": 10.7736,
+      "municipalityNumber": "0301",
+      "district": "Grünerløkka - Sofienberg",
+      "askingPrice": 3800000,
+      "usableAreaInternal": 36
+    },
+    {
+      "finnkode": "480195246",
+      "address": "Trondheimsveien 51 B, 0560 Oslo",
+      "postalCode": "0560",
+      "latitude": 59.92177920828528,
+      "longitude": 10.77115291428002,
+      "municipalityNumber": "0301",
+      "district": "Grünerløkka - Sofienberg",
+      "askingPrice": 3240000,
+      "usableAreaInternal": 22
+    }
+  ]
+}

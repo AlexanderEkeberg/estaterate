@@ -28,20 +28,12 @@ class FinnHtmlParser {
         String section = html.substring(markerIndex).replace("\\\"", "\"");
 
         String postalCode = extract(POSTAL_CODE_PATTERN, section);
-        String rawLatitude = extract(LAT_PATTERN, section);
-        String rawLongitude = extract(LNG_PATTERN, section);
+        Double latitude = parseCoordinate(extract(LAT_PATTERN, section));
+        Double longitude = parseCoordinate(extract(LNG_PATTERN, section));
 
-        if (rawLatitude == null || rawLongitude == null) {
-            throw new ScrapingFailedException("Coordinates not found in listing: " + url);
-        }
-
-        double latitude;
-        double longitude;
-        try {
-            latitude = Double.parseDouble(rawLatitude);
-            longitude = Double.parseDouble(rawLongitude);
-        } catch (NumberFormatException e) {
-            throw new ScrapingFailedException("Invalid coordinates in listing: " + url, e);
+        if (latitude == null || longitude == null) {
+            latitude = null;
+            longitude = null;
         }
 
         String rawMunicipality = extract(MUNICIPALITY_PATTERN, section);
@@ -54,15 +46,25 @@ class FinnHtmlParser {
     }
 
     private String extractDistrict(String html) {
-        String district = null;
         Matcher matcher = LOCATION_LINK_PATTERN.matcher(html);
         while (matcher.find()) {
             String locationId = matcher.group(1);
             if (locationId.startsWith("2.") || locationId.startsWith("1.20061.")) {
-                district = matcher.group(2).trim();
+                return matcher.group(2).trim();
             }
         }
-        return district;
+        return null;
+    }
+
+    private Double parseCoordinate(String raw) {
+        if (raw == null) {
+            return null;
+        }
+        try {
+            return Double.parseDouble(raw);
+        } catch (NumberFormatException e) {
+            return null;
+        }
     }
 
     private String extract(Pattern pattern, String text) {
