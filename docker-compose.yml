@@ -49,12 +49,12 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
     depends_on:
-      - property
-      - weather
-      - school
       - consul
-      - crimerate
+      - property
+      - aggregator
     networks:
       - estaterate
 
