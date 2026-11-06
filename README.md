@@ -47,9 +47,7 @@ docker compose down -v
 ```
 and delete the "data" folder at root level
 
-Gateway port: [http://localhost:8080](http://localhost:8080) 
-<br>
-For example do a GET request to [http://localhost:8080/api/properties](http://localhost:8080/api/properties)
+Gateway: `localhost:8080`. Routes are listed in `gateway/README.md`.
 
 
 ## Postman
