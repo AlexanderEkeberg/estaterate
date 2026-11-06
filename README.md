@@ -47,6 +47,11 @@ docker compose down -v
 ```
 and delete the "data" folder at root level
 
+Start the services with scaling:
+```bash
+docker compose up -d --scale property=2 --scale weather=2 --scale crimerate=2 --scale aggregator=2 --scale school=2
+```
+
 Gateway port: [http://localhost:8080](http://localhost:8080) 
 <br>
 For example do a GET request to [http://localhost:8080/api/properties](http://localhost:8080/api/properties)

@@ -2,11 +2,9 @@ services:
   property:
     build:
       context: ./property
-      dockerfile: Dockerfile
+      dockerfile: ./property/Dockerfile
 #    ports:
 #      - "8090:8090"
-    deploy:
-      replicas: 3
     environment:
       SPRING_PROFILES_ACTIVE: docker
     depends_on:
@@ -18,11 +16,9 @@ services:
   weather:
     build:
       context: ./weather
-      dockerfile: Dockerfile
+      dockerfile: ./weather/Dockerfile
 #    ports:
 #      - "8082:8082"
-    deploy:
-      replicas: 2
     environment:
       SPRING_PROFILES_ACTIVE: docker
     depends_on:
@@ -35,11 +31,9 @@ services:
   crimerate:
     build:
       context: ./crimerate
-      dockerfile: Dockerfile
+      dockerfile: ./crimerate/Dockerfile
 #    ports:
 #      - "8084:8084"
-    deploy:
-      replicas: 2
     environment:
       SPRING_PROFILES_ACTIVE: docker
     depends_on:
@@ -52,7 +46,7 @@ services:
   gateway:
     build:
       context: ./gateway
-      dockerfile: Dockerfile
+      dockerfile: ./gateway/Dockerfile
     ports:
       - "8080:8080"
     depends_on:
@@ -67,7 +61,7 @@ services:
   aggregator:
     build:
       context: ./aggregator
-      dockerfile: Dockerfile
+      dockerfile: ./aggregator/Dockerfile
 #    ports:
 #      - "8085:8085"
     environment:
@@ -140,6 +134,7 @@ services:
   frontend:
     build:
       context: ./frontend
+      dockerfile: ./frontend/Dockerfile
     container_name: frontend
     ports:
       - "5173:5173"
@@ -149,11 +144,9 @@ services:
   school:
     build:
       context: ./school
-      dockerfile: Dockerfile
+      dockerfile: ./school/Dockerfile
 #    ports:
 #      - "8083:8083"
-    deploy:
-      replicas: 2
     environment:
       SPRING_PROFILES_ACTIVE: docker
     depends_on:
