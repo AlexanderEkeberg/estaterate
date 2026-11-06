@@ -1,6 +1,6 @@
 # Temporary README for application setup locally and in Docker
 
-## Local
+## Local (Deprecated)
 
 ### Terminal 1: Property
 ```bash
@@ -33,20 +33,28 @@ http://localhost:8500/ui/dc1/services
 
 Build and start the services (first time / after changing dockerfiles, code or config):
 ```bash
-docker compose up --build -d
+docker compose up -d --build 
 ```
 
 Start the services (run if nothing has been changed):
 ```bash
-docker compose up -d
+docker compose up -d 
 ```
 
-To get a clean sheet and clear the database:
+To get a clean sheet and clear the aggregator database:
 ```bash
 docker compose down -v
 ```
 and delete the "data" folder at root level
 
+Start the services with scaling:
+```bash
+docker compose up -d --scale property=2 --scale weather=2 --scale crimerate=2 --scale aggregator=2 --scale school=2
+```
+
+Gateway port: [http://localhost:8080](http://localhost:8080) 
+<br>
+For example do a GET request to [http://localhost:8080/api/properties](http://localhost:8080/api/properties)
 Gateway: `localhost:8080`. Routes are listed in `gateway/README.md`.
 
 
