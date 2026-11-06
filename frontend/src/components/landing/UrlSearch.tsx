@@ -2,12 +2,14 @@ import { useState } from "react";
 import type { FormEvent } from "react";
 import { ArrowRight } from "lucide-react";
 import { ApiError, scrapeProperty } from "../../api/propertyApi.js";
+import { navigate } from "../../main/router.js";
+import { saveScrapeResult } from "../../storage/scrapeResults.js";
 import { Button } from "../ui/Button.js";
 import styles from "./UrlSearch.module.css";
 
 const FINN_PREFIX = "https://www.finn.no/realestate/homes/";
 
-type Status = "idle" | "submitting" | "success" | "error";
+type Status = "idle" | "submitting" | "error";
 
 function errorMessage(error: unknown): string {
   if (error instanceof ApiError) {
@@ -39,9 +41,9 @@ export function UrlSearch() {
     setStatus("submitting");
     setMessage(null);
     try {
-      await scrapeProperty(trimmed);
-      setStatus("success");
-      setMessage("Listing submitted");
+      const result = await scrapeProperty(trimmed);
+      saveScrapeResult(result);
+      navigate(`/analysis/${encodeURIComponent(result.analysisId)}`);
     } catch (error) {
       console.error(error);
       setStatus("error");
@@ -80,11 +82,7 @@ export function UrlSearch() {
         </Button>
       </form>
       {message && (
-        <p
-          id="url-search-message"
-          className={status === "error" ? styles.error : styles.success}
-          role={status === "error" ? "alert" : "status"}
-        >
+        <p id="url-search-message" className={styles.error} role="alert">
           {message}
         </p>
       )}
