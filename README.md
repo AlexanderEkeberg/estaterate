@@ -55,6 +55,7 @@ docker compose up -d --scale property=2 --scale weather=2 --scale crimerate=2 --
 Gateway port: [http://localhost:8080](http://localhost:8080) 
 <br>
 For example do a GET request to [http://localhost:8080/api/properties](http://localhost:8080/api/properties)
+Gateway: `localhost:8080`. Routes are listed in `gateway/README.md`.
 
 
 ## Postman
