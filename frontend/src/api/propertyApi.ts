@@ -1,3 +1,5 @@
+import { API_URL } from "./apiBase.js";
+
 export class ApiError extends Error {
     readonly status: number | null;
 
@@ -19,7 +21,7 @@ export type ScrapeResult = {
 export async function scrapeProperty(url: string): Promise<ScrapeResult> {
     let response: Response;
     try {
-        response = await fetch("/api/properties/scrape", {
+        response = await fetch(`${API_URL}/api/properties/scrape`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ url }),
