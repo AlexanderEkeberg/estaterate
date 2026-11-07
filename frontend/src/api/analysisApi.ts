@@ -1,3 +1,4 @@
+import { API_URL } from "./apiBase.js";
 import { ApiError } from "./propertyApi.js";
 
 export type CategoryStatus = "PENDING" | "SUCCESS" | "FAILED";
@@ -20,7 +21,7 @@ export async function getAnalysis(
   analysisId: string,
 ): Promise<Analysis | null> {
   const response = await fetch(
-    `/api/analysis/${encodeURIComponent(analysisId)}`,
+    `${API_URL}/api/analysis/${encodeURIComponent(analysisId)}`,
   );
   if (response.status === 404) {
     return null;
