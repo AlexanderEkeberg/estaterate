@@ -1,0 +1,40 @@
+.icon {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  color: white;
+}
+
+.done {
+  background: #1fa463;
+}
+
+.failed {
+  background: #e5484d;
+}
+
+.upcoming {
+  border: 2px solid #c9cedb;
+}
+
+.active {
+  border: 3px solid #dbe6ff;
+  border-top-color: var(--color-primary);
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .active {
+    animation-duration: 2.5s;
+  }
+}
