@@ -55,6 +55,7 @@ services:
       - consul
       - property
       - aggregator
+      - keycloak
     networks:
       - estaterate
 
