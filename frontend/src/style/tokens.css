@@ -1,0 +1,47 @@
+:root {
+  --er-font: var(--font-sans);
+
+  --er-navy: #0b1437;
+  --er-blue: #0a5cff;
+  --er-blue-hover: #0848c9;
+  --er-blue-soft: #eaf1ff;
+
+  --er-bg: #f5f8ff;
+  --er-surface: #ffffff;
+  --er-muted: #5b6383;
+  --er-border: #e6e9f0;
+  --er-border-strong: #cdd5e6;
+  --er-skeleton: #eef1f7;
+
+  --er-shadow: 0 4px 24px rgb(11 20 55 / 0.08);
+  --er-radius: 16px;
+  --er-radius-sm: 12px;
+
+  --er-weather: #f5a623;
+  --er-weather-bg: #fff4e0;
+  --er-weather-text: #8a5a00;
+  --er-crime: #e5484d;
+  --er-crime-bg: #ffe8ea;
+  --er-crime-text: #a3191f;
+  --er-schools: #1fa463;
+  --er-schools-bg: #e3f8ec;
+  --er-schools-text: #126b3e;
+
+  --er-danger: #c4262c;
+  --er-danger-bg: #fff7f7;
+  --er-danger-border: #f1b4b7;
+
+  --er-warn-bg: #fff8e6;
+  --er-warn-border: #f5d27a;
+  --er-warn-text: #7a5200;
+}
+
+@keyframes er-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}

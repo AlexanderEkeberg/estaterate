@@ -1,0 +1,139 @@
+.page {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 32px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.card {
+  background: var(--er-surface);
+  border-radius: var(--er-radius);
+  box-shadow: var(--er-shadow);
+  padding: 24px;
+}
+
+.eyebrow {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--er-blue);
+}
+
+.h1 {
+  margin: 0;
+  font-size: 34px;
+  line-height: 1.15;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.btn {
+  height: 44px;
+  padding: 0 18px;
+  border-radius: var(--er-radius-sm);
+  border: 1.5px solid transparent;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color 0.15s,
+    box-shadow 0.15s;
+}
+
+.btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 4px rgb(10 92 255 / 0.25);
+}
+
+.primary {
+  background: var(--er-blue);
+  color: #fff;
+}
+
+.primary:hover {
+  background: var(--er-blue-hover);
+}
+
+.lg {
+  height: 48px;
+  padding: 0 22px;
+}
+
+.iconTile {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--er-radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.iconTileSm {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+}
+
+.weatherTile {
+  background: var(--er-weather-bg);
+  color: var(--er-weather);
+}
+
+.crimeTile {
+  background: var(--er-crime-bg);
+  color: var(--er-crime);
+}
+
+.schoolsTile {
+  background: var(--er-schools-bg);
+  color: var(--er-schools);
+}
+
+.pulseDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #8a93ad;
+  animation: er-pulse 1.4s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+.skeleton {
+  border-radius: 8px;
+  background: var(--er-skeleton);
+}
+
+@media (max-width: 640px) {
+  .page {
+    padding: 24px 16px;
+  }
+  .h1 {
+    font-size: 28px;
+  }
+  .card {
+    padding: 20px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pulseDot {
+    animation: none;
+  }
+}

@@ -1,0 +1,28 @@
+.inlineFail {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  color: var(--er-danger);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.inlineFail svg {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.inlinePending {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--er-muted);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.meterSkeleton {
+  height: 6px;
+  border-radius: 3px;
+}
