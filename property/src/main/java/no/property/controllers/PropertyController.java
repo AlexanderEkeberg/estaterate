@@ -6,6 +6,8 @@ import no.property.dto.ScrapeRequestDTO;
 import no.property.dto.ScrapeResponseDTO;
 import no.property.services.FinnScraperService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -33,5 +35,10 @@ public class PropertyController {
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.ok(latest);
+    }
+    @GetMapping("/secured")
+    public ResponseEntity<String> secured(@AuthenticationPrincipal Jwt jwt) {
+        String username = jwt.getClaimAsString("preferred_username");
+        return ResponseEntity.ok("Secured endpoint: token for user " + username + " is valid");
     }
 }
