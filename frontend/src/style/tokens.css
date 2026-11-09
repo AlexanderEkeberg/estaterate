@@ -5,10 +5,12 @@
   --er-blue: #0a5cff;
   --er-blue-hover: #0848c9;
   --er-blue-soft: #eaf1ff;
+  --er-blue-tint: #f3f7ff;
 
   --er-bg: #f5f8ff;
   --er-surface: #ffffff;
   --er-muted: #5b6383;
+  --er-muted-strong: #3d4566;
   --er-border: #e6e9f0;
   --er-border-strong: #cdd5e6;
   --er-skeleton: #eef1f7;

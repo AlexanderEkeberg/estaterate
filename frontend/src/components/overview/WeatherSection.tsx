@@ -22,6 +22,7 @@ import {
 import { weatherIcon } from "../../lib/weatherIcon.js";
 import { cx } from "../../lib/cx.js";
 import { SectionPending, SectionUnavailable } from "./CategoryState.js";
+import { MonthlyClimateChart } from "./MonthlyClimateChart.js";
 import ui from "../../style/ui.module.css";
 import styles from "./WeatherSection.module.css";
 
@@ -186,6 +187,14 @@ function WeatherContent({ data }: { data: WeatherData }) {
             />
           </div>
         </div>
+      )}
+
+      {data.fiveYearAverage.length > 0 && (
+        <MonthlyClimateChart
+          fiveYearAverage={data.fiveYearAverage}
+          byYear={data.byYear}
+          fiveYearRange={data.fiveYearRange}
+        />
       )}
 
       <div className={styles.sources}>
