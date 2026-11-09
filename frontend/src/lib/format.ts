@@ -11,3 +11,21 @@ export function formatNumber(value: number, decimals = 0): string {
 }
 
 export const formatNok = (value: number) => `${formatNumber(value)}${NBSP}kr`;
+
+export const formatTemp = (value: number) => `${formatNumber(value)}°`;
+
+const parseDate = (iso: string) => new Date(`${iso}T12:00:00`);
+
+export const isToday = (iso: string) =>
+  parseDate(iso).toDateString() === new Date().toDateString();
+
+export const formatShortDate = (iso: string) =>
+  parseDate(iso).toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "short",
+  });
+
+export const formatWeekday = (iso: string) =>
+  isToday(iso)
+    ? "Today"
+    : parseDate(iso).toLocaleDateString("en-GB", { weekday: "short" });

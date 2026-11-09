@@ -26,3 +26,40 @@
   height: 6px;
   border-radius: 3px;
 }
+
+.failBox {
+  display: flex;
+  gap: 12px;
+  padding: 18px;
+  border-radius: var(--er-radius-sm);
+  border: 1px dashed var(--er-danger-border);
+  background: var(--er-danger-bg);
+  color: var(--er-danger);
+}
+
+.failBox > svg {
+  flex-shrink: 0;
+}
+
+.failText {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.failTitle {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.failBody {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--er-muted);
+}
+
+.skeletonStack {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}

@@ -1,0 +1,216 @@
+import type { ReactNode } from "react";
+import {
+  Droplet,
+  Info,
+  Snowflake,
+  Sun,
+  Thermometer,
+  Umbrella,
+} from "lucide-react";
+import type {
+  CategoryResult,
+  MonthlyClimate,
+  WeatherData,
+} from "../../types/report.js";
+import {
+  formatNumber,
+  formatShortDate,
+  formatTemp,
+  formatWeekday,
+  isToday,
+} from "../../lib/format.js";
+import { weatherIcon } from "../../lib/weatherIcon.js";
+import { cx } from "../../lib/cx.js";
+import { SectionPending, SectionUnavailable } from "./CategoryState.js";
+import ui from "../../style/ui.module.css";
+import styles from "./WeatherSection.module.css";
+
+const TONE_CLASS = {
+  sun: styles.toneSun,
+  cloud: styles.toneCloud,
+  rain: styles.toneRain,
+  snow: styles.toneSnow,
+};
+
+function yearlyTotals(months: MonthlyClimate[]) {
+  const sum = (pick: (month: MonthlyClimate) => number) =>
+    months.reduce((total, month) => total + pick(month), 0);
+  const summer = months.filter((m) => m.month >= 6 && m.month <= 8);
+  return {
+    summerTempC:
+      summer.reduce((total, month) => total + month.avgTempC, 0) /
+      summer.length,
+    precipitationMm: sum((m) => m.precipitationMm),
+    snowfallCm: sum((m) => m.snowfallCm),
+    frostDays: sum((m) => m.frostDays),
+  };
+}
+
+export function WeatherSection({
+  result,
+}: {
+  result: CategoryResult<WeatherData>;
+}) {
+  const data = result.status === "AVAILABLE" ? result.data : undefined;
+
+  return (
+    <section
+      aria-labelledby="weather-title"
+      className={cx(ui.card, styles.weather)}
+    >
+      <div className={styles.sectionHead}>
+        <div className={styles.sectionTitle}>
+          <span className={cx(ui.iconTile, ui.weatherTile)}>
+            <Sun size={22} aria-hidden />
+          </span>
+          <div>
+            <h2 id="weather-title" className={ui.h2}>
+              Weather &amp; sunlight
+            </h2>
+            <p className={styles.sectionSub}>
+              10-day forecast and five years of local climate history
+            </p>
+          </div>
+        </div>
+        {data?.dataSource === "MOCK" && (
+          <span className={ui.sampleTag}>Sample data</span>
+        )}
+      </div>
+
+      {data && <WeatherContent data={data} />}
+
+      {result.status === "UNAVAILABLE" && (
+        <SectionUnavailable message="We couldn't load weather data for this location right now." />
+      )}
+      {result.status === "PENDING" && <SectionPending lines={4} />}
+    </section>
+  );
+}
+
+function WeatherContent({ data }: { data: WeatherData }) {
+  const totals =
+    data.fiveYearAverage.length === 12
+      ? yearlyTotals(data.fiveYearAverage)
+      : null;
+
+  return (
+    <>
+      {data.forecast.length > 0 && (
+        <div className={styles.block}>
+          <div className={styles.blockHead}>
+            <h3 className={ui.h3}>Next {data.forecast.length} days</h3>
+            <span className={styles.blockHint}>
+              Max / min °C · precipitation
+            </span>
+          </div>
+          <ol className={styles.forecast}>
+            {data.forecast.map((day) => {
+              const { Icon, label, tone } = weatherIcon(day.symbol);
+              return (
+                <li
+                  key={day.date}
+                  className={cx(styles.day, isToday(day.date) && styles.today)}
+                >
+                  <div>
+                    <div className={styles.dayName}>
+                      {formatWeekday(day.date)}
+                    </div>
+                    <div className={styles.dayDate}>
+                      {formatShortDate(day.date)}
+                    </div>
+                  </div>
+                  <Icon
+                    size={32}
+                    strokeWidth={1.8}
+                    className={TONE_CLASS[tone]}
+                    role="img"
+                    aria-label={label}
+                  />
+                  <div className={styles.temps}>
+                    <span className={styles.tMax}>
+                      {formatTemp(day.maxTempC)}
+                    </span>{" "}
+                    <span className={styles.tMin}>
+                      {formatTemp(day.minTempC)}
+                    </span>
+                  </div>
+                  <div
+                    className={cx(
+                      styles.precip,
+                      day.precipitationMm > 0 && styles.precipWet,
+                    )}
+                  >
+                    <Droplet size={12} strokeWidth={2.2} aria-hidden />
+                    {formatNumber(day.precipitationMm, 1)} mm
+                  </div>
+                </li>
+              );
+            })}
+          </ol>
+        </div>
+      )}
+
+      {totals && (
+        <div className={styles.block}>
+          <div className={styles.blockHead}>
+            <h3 className={ui.h3}>Climate at a glance</h3>
+            <span className={styles.blockHint}>
+              5-year average
+              {data.fiveYearRange ? ` (${data.fiveYearRange})` : ""}
+            </span>
+          </div>
+          <div className={styles.stats}>
+            <Stat
+              icon={<Sun size={22} color="var(--er-weather)" aria-hidden />}
+              value={formatNumber(totals.summerTempC)}
+              unit="°C"
+              label="Average summer temperature (Jun–Aug)"
+            />
+            <Stat
+              icon={<Umbrella size={22} color="var(--er-blue)" aria-hidden />}
+              value={formatNumber(totals.precipitationMm)}
+              unit="mm"
+              label="Precipitation per year"
+            />
+            <Stat
+              icon={<Snowflake size={22} color="#6c7bb0" aria-hidden />}
+              value={formatNumber(totals.snowfallCm)}
+              unit="cm"
+              label="Snowfall per year"
+            />
+            <Stat
+              icon={<Thermometer size={22} color="#3d6fd6" aria-hidden />}
+              value={formatNumber(totals.frostDays)}
+              unit="days"
+              label="Frost days per year"
+            />
+          </div>
+        </div>
+      )}
+
+      <div className={styles.sources}>
+        <Info size={16} aria-hidden />
+        <span>Historical data: Open-Meteo · Forecast: Yr (MET Norway)</span>
+      </div>
+    </>
+  );
+}
+
+type StatProps = {
+  icon: ReactNode;
+  value: string;
+  unit: string;
+  label: string;
+};
+
+function Stat({ icon, value, unit, label }: StatProps) {
+  return (
+    <div className={styles.stat}>
+      {icon}
+      <div className={styles.statValue}>
+        {value} <span className={styles.statUnit}>{unit}</span>
+      </div>
+      <div className={styles.statLabel}>{label}</div>
+    </div>
+  );
+}

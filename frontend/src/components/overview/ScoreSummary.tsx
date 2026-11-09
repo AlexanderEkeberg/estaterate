@@ -105,6 +105,7 @@ export function ScoreSummary({ report }: { report: PropertyReport }) {
             Weather
           </div>
           <div className={styles.notScored}>Not scored</div>
+          <div className={styles.note}>Forecast and climate shown below</div>
         </div>
       </div>
     </section>

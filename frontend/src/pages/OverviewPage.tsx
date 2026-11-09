@@ -3,6 +3,7 @@ import type { PropertyReport } from "../types/report.js";
 import { Navbar } from "../components/layout/Navbar.js";
 import { OverviewHeader } from "../components/overview/OverviewHeader.js";
 import { ScoreSummary } from "../components/overview/ScoreSummary.js";
+import { WeatherSection } from "../components/overview/WeatherSection.js";
 import { navigate } from "../main/router.js";
 import { cx } from "../lib/cx.js";
 import ui from "../style/ui.module.css";
@@ -15,6 +16,7 @@ export function OverviewPage({ report }: { report: PropertyReport }) {
       <main className={ui.page}>
         <OverviewHeader report={report} />
         <ScoreSummary report={report} />
+        <WeatherSection result={report.weather} />
 
         <div className={styles.footer}>
           <button

@@ -1,0 +1,170 @@
+.sectionHead {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.sectionTitle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.sectionSub {
+  margin: 2px 0 0;
+  font-size: 14px;
+  color: var(--er-muted);
+}
+
+.weather {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.blockHead {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.blockHint {
+  font-size: 13px;
+  color: var(--er-muted);
+}
+
+.block {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.forecast {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 0 0 4px;
+  margin: 0;
+  list-style: none;
+  scroll-snap-type: x proximity;
+}
+
+.day {
+  flex: 1 0 88px;
+  min-width: 88px;
+  padding: 14px 8px;
+  border-radius: var(--er-radius-sm);
+  border: 1.5px solid var(--er-border);
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-align: center;
+  scroll-snap-align: start;
+}
+
+.today {
+  border-color: var(--er-blue);
+  background: var(--er-bg);
+}
+
+.dayName {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.dayDate {
+  font-size: 12px;
+  color: var(--er-muted);
+}
+
+.temps {
+  white-space: nowrap;
+}
+
+.tMax {
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.tMin {
+  font-size: 14px;
+  color: var(--er-muted);
+}
+
+.precip {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--er-muted);
+  white-space: nowrap;
+}
+
+.precipWet {
+  color: var(--er-blue);
+}
+
+.toneSun {
+  color: var(--er-weather);
+}
+.toneCloud {
+  color: var(--er-muted);
+}
+.toneRain {
+  color: var(--er-blue);
+}
+.toneSnow {
+  color: #6c7bb0;
+}
+
+.stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.stat {
+  flex: 1 1 130px;
+  padding: 16px;
+  border-radius: var(--er-radius-sm);
+  background: var(--er-bg);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.statValue {
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.statUnit {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--er-muted);
+}
+
+.statLabel {
+  font-size: 13px;
+  color: var(--er-muted);
+}
+
+.sources {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding-top: 16px;
+  border-top: 1px solid var(--er-border);
+  font-size: 13px;
+  color: var(--er-muted);
+}
