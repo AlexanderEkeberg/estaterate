@@ -1,17 +1,5 @@
-import type { ReactNode } from "react";
-import {
-  Droplet,
-  Info,
-  Snowflake,
-  Sun,
-  Thermometer,
-  Umbrella,
-} from "lucide-react";
-import type {
-  CategoryResult,
-  MonthlyClimate,
-  WeatherData,
-} from "../../types/report.js";
+import { Droplet, Info, Sun } from "lucide-react";
+import type { CategoryResult, WeatherData } from "../../types/report.js";
 import {
   formatNumber,
   formatShortDate,
@@ -32,20 +20,6 @@ const TONE_CLASS = {
   rain: styles.toneRain,
   snow: styles.toneSnow,
 };
-
-function yearlyTotals(months: MonthlyClimate[]) {
-  const sum = (pick: (month: MonthlyClimate) => number) =>
-    months.reduce((total, month) => total + pick(month), 0);
-  const summer = months.filter((m) => m.month >= 6 && m.month <= 8);
-  return {
-    summerTempC:
-      summer.reduce((total, month) => total + month.avgTempC, 0) /
-      summer.length,
-    precipitationMm: sum((m) => m.precipitationMm),
-    snowfallCm: sum((m) => m.snowfallCm),
-    frostDays: sum((m) => m.frostDays),
-  };
-}
 
 export function WeatherSection({
   result,
@@ -89,11 +63,6 @@ export function WeatherSection({
 }
 
 function WeatherContent({ data }: { data: WeatherData }) {
-  const totals =
-    data.fiveYearAverage.length === 12
-      ? yearlyTotals(data.fiveYearAverage)
-      : null;
-
   return (
     <>
       {data.forecast.length > 0 && (
@@ -151,50 +120,14 @@ function WeatherContent({ data }: { data: WeatherData }) {
         </div>
       )}
 
-      {totals && (
-        <div className={styles.block}>
-          <div className={styles.blockHead}>
-            <h3 className={ui.h3}>Climate at a glance</h3>
-            <span className={styles.blockHint}>
-              5-year average
-              {data.fiveYearRange ? ` (${data.fiveYearRange})` : ""}
-            </span>
-          </div>
-          <div className={styles.stats}>
-            <Stat
-              icon={<Sun size={22} color="var(--er-weather)" aria-hidden />}
-              value={formatNumber(totals.summerTempC)}
-              unit="°C"
-              label="Average summer temperature (Jun–Aug)"
-            />
-            <Stat
-              icon={<Umbrella size={22} color="var(--er-blue)" aria-hidden />}
-              value={formatNumber(totals.precipitationMm)}
-              unit="mm"
-              label="Precipitation per year"
-            />
-            <Stat
-              icon={<Snowflake size={22} color="#6c7bb0" aria-hidden />}
-              value={formatNumber(totals.snowfallCm)}
-              unit="cm"
-              label="Snowfall per year"
-            />
-            <Stat
-              icon={<Thermometer size={22} color="#3d6fd6" aria-hidden />}
-              value={formatNumber(totals.frostDays)}
-              unit="days"
-              label="Frost days per year"
-            />
-          </div>
-        </div>
-      )}
-
       {data.fiveYearAverage.length > 0 && (
-        <MonthlyClimateChart
-          fiveYearAverage={data.fiveYearAverage}
-          byYear={data.byYear}
-          fiveYearRange={data.fiveYearRange}
-        />
+        <div className={styles.climate}>
+          <MonthlyClimateChart
+            fiveYearAverage={data.fiveYearAverage}
+            byYear={data.byYear}
+            fiveYearRange={data.fiveYearRange}
+          />
+        </div>
       )}
 
       <div className={styles.sources}>
@@ -202,24 +135,5 @@ function WeatherContent({ data }: { data: WeatherData }) {
         <span>Historical data: Open-Meteo · Forecast: Yr (MET Norway)</span>
       </div>
     </>
-  );
-}
-
-type StatProps = {
-  icon: ReactNode;
-  value: string;
-  unit: string;
-  label: string;
-};
-
-function Stat({ icon, value, unit, label }: StatProps) {
-  return (
-    <div className={styles.stat}>
-      {icon}
-      <div className={styles.statValue}>
-        {value} <span className={styles.statUnit}>{unit}</span>
-      </div>
-      <div className={styles.statLabel}>{label}</div>
-    </div>
   );
 }

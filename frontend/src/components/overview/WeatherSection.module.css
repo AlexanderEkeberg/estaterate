@@ -125,37 +125,9 @@
   color: #6c7bb0;
 }
 
-.stats {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-
-.stat {
-  flex: 1 1 130px;
-  padding: 16px;
-  border-radius: var(--er-radius-sm);
-  background: var(--er-bg);
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.statValue {
-  font-size: 26px;
-  font-weight: 700;
-  line-height: 1.1;
-}
-
-.statUnit {
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--er-muted);
-}
-
-.statLabel {
-  font-size: 13px;
-  color: var(--er-muted);
+.climate {
+  padding-top: 28px;
+  border-top: 1px solid var(--er-border);
 }
 
 .sources {
