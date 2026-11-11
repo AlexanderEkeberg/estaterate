@@ -1,6 +1,7 @@
 package org.example.crimerate.dto;
 
-public record CrimeRateResponseDTO(
+public record CrimeData(
+        DataSource source,
         String bydel,
         int year,
         int crimeCount,

@@ -13,6 +13,7 @@ public record PropertySubmittedEvent(
         String postalCode,
         Double latitude,
         Double longitude,
+        String coordinatesSource,
         String municipalityNumber,
         String district
 ) {

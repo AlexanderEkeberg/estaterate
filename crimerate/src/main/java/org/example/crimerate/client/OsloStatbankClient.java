@@ -3,10 +3,14 @@ package org.example.crimerate.client;
 import lombok.extern.slf4j.Slf4j;
 import org.example.crimerate.dto.StatbankResponseDTO;
 import org.example.crimerate.service.OsloBydel;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.restclient.RestTemplateBuilder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -16,20 +20,28 @@ import java.util.Map;
 @Service
 public class OsloStatbankClient {
 
-    private static final String BASE_URL = "https://statistikkbanken.oslo.kommune.no/statbank/api/v1/no/db1";
-    private static final String KRI002_URL = BASE_URL + "/Kriminalitet/KRI002.px";
-    private static final String BEF005_URL = BASE_URL + "/Befolkning/Folkemengde/OK-BEF005.px";
+    private static final String KRI002_PATH = "/Kriminalitet/KRI002.px";
+    private static final String BEF005_PATH = "/Befolkning/Folkemengde/OK-BEF005.px";
+    private static final Duration CONNECT_TIMEOUT = Duration.ofSeconds(3);
+    private static final Duration READ_TIMEOUT = Duration.ofSeconds(10);
 
-    public static final int FIRST_YEAR = 2017;
+    private static final int FIRST_YEAR = 2017;
     public static final int LAST_YEAR = 2024;
 
     private static final List<String> BYDEL_CODES =
             Arrays.stream(OsloBydel.values()).map(OsloBydel::getCode).toList();
 
+    private final String baseUrl;
     private final RestTemplate restTemplate;
 
-    public OsloStatbankClient(RestTemplateBuilder builder) {
-        this.restTemplate = builder.build();
+    @Autowired
+    public OsloStatbankClient(RestTemplateBuilder builder, @Value("${statbank.url}") String baseUrl) {
+        this(builder.connectTimeout(CONNECT_TIMEOUT).readTimeout(READ_TIMEOUT).build(), baseUrl);
+    }
+
+    OsloStatbankClient(RestTemplate restTemplate, String baseUrl) {
+        this.baseUrl = baseUrl;
+        this.restTemplate = restTemplate;
     }
 
     public Map<String, Integer> getCrimeCounts(int year) {
@@ -41,7 +53,7 @@ public class OsloStatbankClient {
                 ),
                 "response", Map.of("format", "json")
         );
-        return fetch(KRI002_URL, query, 0);
+        return fetch(baseUrl + KRI002_PATH, query, 0);
     }
 
     public Map<String, Integer> getPopulation(int year) {
@@ -53,16 +65,22 @@ public class OsloStatbankClient {
                 ),
                 "response", Map.of("format", "json")
         );
-        return fetch(BEF005_URL, query, 1);
+        return fetch(baseUrl + BEF005_PATH, query, 1);
     }
 
     private Map<String, Integer> fetch(String url, Map<String, Object> query, int bydelKeyIndex) {
-        StatbankResponseDTO response = restTemplate.postForObject(url, query, StatbankResponseDTO.class);
-        Map<String, Integer> result = new HashMap<>();
-        if (response == null || response.data() == null) {
-            log.warn("Tomt svar fra statistikkbanken: {}", url);
-            return result;
+        StatbankResponseDTO response;
+        try {
+            response = HttpRetry.call(() -> restTemplate.postForObject(url, query, StatbankResponseDTO.class));
+        } catch (RestClientException e) {
+            log.warn("Could not contact statbank: {}", e.getMessage());
+            throw new StatbankException("Could not contact statbank", e);
         }
+        if (response == null || response.data() == null || response.data().isEmpty()) {
+            throw new StatbankException("Statbank returned no data");
+        }
+
+        Map<String, Integer> result = new HashMap<>();
         for (StatbankResponseDTO.DataRow row : response.data()) {
             String bydelCode = row.key().get(bydelKeyIndex);
             String value = row.values().getFirst();
