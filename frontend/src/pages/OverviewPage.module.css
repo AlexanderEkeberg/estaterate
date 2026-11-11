@@ -1,0 +1,15 @@
+.page {
+  width: 100%;
+  min-height: 100vh;
+  background-color: var(--er-bg);
+  color: var(--er-navy);
+}
+
+.footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 8px 0 16px;
+}

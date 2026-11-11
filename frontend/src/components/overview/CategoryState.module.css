@@ -1,0 +1,65 @@
+.inlineFail {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  color: var(--er-danger);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.inlineFail svg {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.inlinePending {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--er-muted);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.meterSkeleton {
+  height: 6px;
+  border-radius: 3px;
+}
+
+.failBox {
+  display: flex;
+  gap: 12px;
+  padding: 18px;
+  border-radius: var(--er-radius-sm);
+  border: 1px dashed var(--er-danger-border);
+  background: var(--er-danger-bg);
+  color: var(--er-danger);
+}
+
+.failBox > svg {
+  flex-shrink: 0;
+}
+
+.failText {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.failTitle {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.failBody {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--er-muted);
+}
+
+.skeletonStack {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}

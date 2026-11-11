@@ -8,6 +8,8 @@ import {
 } from "../components/analysis/categories.js";
 import { useAnalysis } from "../hooks/useAnalysis.js";
 import { loadScrapeResult } from "../storage/scrapeResults.js";
+import { toPropertyReport } from "../api/reportMapper.js";
+import { OverviewPage } from "./OverviewPage.js";
 import styles from "./AnalysisPage.module.css";
 
 type AnalysisPageProps = {
@@ -31,6 +33,14 @@ export function AnalysisPage({ analysisId }: AnalysisPageProps) {
       state: status === "PENDING" && timedOut ? "TIMED_OUT" : status,
     };
   });
+
+  if (finished && analysis) {
+    return (
+      <OverviewPage
+        report={toPropertyReport(analysis, scrapeResult, timedOut)}
+      />
+    );
+  }
 
   return (
     <main className={styles.page}>
