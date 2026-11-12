@@ -14,10 +14,13 @@ import java.time.YearMonth;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.Predicate;
 import java.util.function.ToDoubleFunction;
@@ -35,18 +38,20 @@ public class WeatherMapper {
     private static final double RAINY_DAY_MM = 1.0;
     private static final ZoneId OSLO = ZoneId.of("Europe/Oslo");
     private static final int FORECAST_DAYS = 10;
+    private static final double SUNNY_MIN_DIRECT_NORMAL_WM2 = 120;
+    private static final double SUNNY_MAX_CLOUD_COVER_PCT = 70;
 
     // én dag fra Open-Meteo. Verdiene er null for dager arkivet ikke har data for ennå
     private record Day(LocalDate date, Double mean, Double max, Double min,
-                       Double precipitation, Double snow, Double sunSeconds, Double wind) {
+                       Double precipitation, Double snow, Double sunHours, Double wind) {
 
         boolean hasValues() {
-            return Stream.of(mean, max, min, precipitation, snow, sunSeconds, wind).noneMatch(Objects::isNull);
+            return Stream.of(mean, max, min, precipitation, snow, sunHours, wind).noneMatch(Objects::isNull);
         }
     }
 
     public List<MonthlyWeather> toMonthly(OpenMeteoResponse response) {
-        Map<YearMonth, List<Day>> daysPerMonth = readDays(response.daily()).stream()
+        Map<YearMonth, List<Day>> daysPerMonth = readDays(response.daily(), sunshineHoursPerDay(response.hourly())).stream()
                 .collect(Collectors.groupingBy(day -> YearMonth.from(day.date()), TreeMap::new, Collectors.toList()));
 
         return daysPerMonth.entrySet().stream()
@@ -151,7 +156,25 @@ public class WeatherMapper {
         return data.next1Hours() != null;
     }
 
-    private List<Day> readDays(OpenMeteoResponse.Daily daily) {
+    private Map<LocalDate, Double> sunshineHoursPerDay(OpenMeteoResponse.Hourly hourly) {
+        Map<LocalDate, Double> hoursPerDay = new HashMap<>();
+        Set<LocalDate> incompleteDays = new HashSet<>();
+        for (int i = 0; i < hourly.time().size(); i++) {
+            LocalDate date = hourly.time().get(i).toLocalDate();
+            Double directNormal = hourly.directNormalIrradiance().get(i);
+            Double cloudCover = hourly.cloudCover().get(i);
+            if (directNormal == null || cloudCover == null) {
+                incompleteDays.add(date);
+                continue;
+            }
+            boolean sunny = directNormal > SUNNY_MIN_DIRECT_NORMAL_WM2 && cloudCover < SUNNY_MAX_CLOUD_COVER_PCT;
+            hoursPerDay.merge(date, sunny ? 1.0 : 0.0, Double::sum);
+        }
+        incompleteDays.forEach(hoursPerDay::remove);
+        return hoursPerDay;
+    }
+
+    private List<Day> readDays(OpenMeteoResponse.Daily daily, Map<LocalDate, Double> sunHoursPerDay) {
         return IntStream.range(0, daily.time().size())
                 .mapToObj(i -> new Day(
                         daily.time().get(i),
@@ -160,7 +183,7 @@ public class WeatherMapper {
                         daily.temperatureMin().get(i),
                         daily.precipitationSum().get(i),
                         daily.snowfallSum().get(i),
-                        daily.sunshineDuration().get(i),
+                        sunHoursPerDay.get(daily.time().get(i)),
                         daily.windSpeedMax().get(i)))
                 .filter(Day::hasValues)
                 .toList();
@@ -176,7 +199,7 @@ public class WeatherMapper {
                 sum(days, Day::precipitation),
                 count(days, day -> day.precipitation() >= RAINY_DAY_MM),
                 sum(days, Day::snow),
-                sum(days, day -> day.sunSeconds() / 3600),
+                sum(days, Day::sunHours),
                 average(days, Day::wind),
                 count(days, day -> day.min() < 0),
                 days.size() == month.lengthOfMonth());

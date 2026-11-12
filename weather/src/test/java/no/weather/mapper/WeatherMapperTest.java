@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,43 +31,65 @@ class WeatherMapperTest {
         private final List<Double> min = new ArrayList<>();
         private final List<Double> precipitation = new ArrayList<>();
         private final List<Double> snow = new ArrayList<>();
-        private final List<Double> sun = new ArrayList<>();
         private final List<Double> wind = new ArrayList<>();
+        private final List<LocalDateTime> hourTime = new ArrayList<>();
+        private final List<Double> directNormal = new ArrayList<>();
+        private final List<Double> cloudCover = new ArrayList<>();
 
         Days day(LocalDate date, double mean, double max, double min,
-                 double precipitation, double snow, double sunSeconds, double wind) {
+                 double precipitation, double snow, int sunnyHours, double wind) {
             time.add(date);
             this.mean.add(mean);
             this.max.add(max);
             this.min.add(min);
             this.precipitation.add(precipitation);
             this.snow.add(snow);
-            this.sun.add(sunSeconds);
             this.wind.add(wind);
+            for (int h = 0; h < 24; h++) {
+                boolean sunny = h < sunnyHours;
+                hours(date.atTime(h, 0), sunny ? 500.0 : 0.0, sunny ? 10.0 : 100.0);
+            }
             return this;
         }
 
         // dag der arkivet ikke har data ennå
         Days emptyDay(LocalDate date) {
             time.add(date);
-            for (List<Double> values : List.of(mean, max, min, precipitation, snow, sun, wind)) {
+            for (List<Double> values : List.of(mean, max, min, precipitation, snow, wind)) {
                 values.add(null);
+            }
+            for (int h = 0; h < 24; h++) {
+                hours(date.atTime(h, 0), null, null);
             }
             return this;
         }
 
         // alle dagene i måneden med samme verdier
         Days month(YearMonth month, double mean, double max, double min,
-                   double precipitation, double snow, double sunSeconds, double wind) {
+                   double precipitation, double snow, int sunnyHours, double wind) {
             for (int d = 1; d <= month.lengthOfMonth(); d++) {
-                day(month.atDay(d), mean, max, min, precipitation, snow, sunSeconds, wind);
+                day(month.atDay(d), mean, max, min, precipitation, snow, sunnyHours, wind);
             }
             return this;
         }
 
+        Days setHour(LocalDateTime hour, Double directNormal, Double cloudCover) {
+            int i = hourTime.indexOf(hour);
+            this.directNormal.set(i, directNormal);
+            this.cloudCover.set(i, cloudCover);
+            return this;
+        }
+
+        private void hours(LocalDateTime hour, Double directNormal, Double cloudCover) {
+            hourTime.add(hour);
+            this.directNormal.add(directNormal);
+            this.cloudCover.add(cloudCover);
+        }
+
         OpenMeteoResponse build() {
-            return new OpenMeteoResponse(new OpenMeteoResponse.Daily(
-                    time, mean, max, min, precipitation, snow, sun, wind));
+            return new OpenMeteoResponse(
+                    new OpenMeteoResponse.Daily(time, mean, max, min, precipitation, snow, wind),
+                    new OpenMeteoResponse.Hourly(hourTime, directNormal, cloudCover));
         }
     }
 
@@ -78,7 +101,7 @@ class WeatherMapperTest {
     @Test
     void aggregatesAFullMonth() {
         OpenMeteoResponse response = new Days()
-                .month(YearMonth.of(2025, 1), -4.0, -1.0, -8.0, 2.0, 1.5, 3600, 20.0)
+                .month(YearMonth.of(2025, 1), -4.0, -1.0, -8.0, 2.0, 1.5, 1, 20.0)
                 .build();
 
         List<MonthlyWeather> monthly = mapper.toMonthly(response);
@@ -138,7 +161,7 @@ class WeatherMapperTest {
     void skipsDaysWithoutDataAndFlagsMonthAsIncomplete() {
         Days days = new Days();
         for (int d = 1; d <= 15; d++) {
-            days.day(LocalDate.of(2025, 10, d), 6.0, 9.0, 3.0, 2.0, 0.0, 3600, 10.0);
+            days.day(LocalDate.of(2025, 10, d), 6.0, 9.0, 3.0, 2.0, 0.0, 1, 10.0);
         }
         for (int d = 16; d <= 31; d++) {
             days.emptyDay(LocalDate.of(2025, 10, d));
@@ -164,6 +187,33 @@ class WeatherMapperTest {
         }
 
         assertTrue(mapper.toMonthly(days.build()).isEmpty());
+    }
+
+    @Test
+    void countsOnlyHoursWithStrongDirectSunAndFewClouds() {
+        LocalDate first = LocalDate.of(2025, 6, 1);
+        OpenMeteoResponse response = new Days()
+                .month(YearMonth.of(2025, 6), 15.0, 20.0, 10.0, 0.0, 0.0, 0, 10.0)
+                .setHour(first.atTime(10, 0), 121.0, 69.0)
+                .setHour(first.atTime(11, 0), 120.0, 0.0)
+                .setHour(first.atTime(12, 0), 800.0, 70.0)
+                .setHour(first.atTime(13, 0), 400.0, 20.0)
+                .build();
+
+        assertEquals(2.0, mapper.toMonthly(response).get(0).sunshineHours());
+    }
+
+    @Test
+    void skipsDaysWithMissingHourlyValues() {
+        OpenMeteoResponse response = new Days()
+                .month(YearMonth.of(2025, 6), 15.0, 20.0, 10.0, 0.0, 0.0, 5, 10.0)
+                .setHour(LocalDate.of(2025, 6, 30).atTime(23, 0), null, null)
+                .build();
+
+        MonthlyWeather june = mapper.toMonthly(response).get(0);
+
+        assertFalse(june.complete());
+        assertEquals(145.0, june.sunshineHours());
     }
 
     @Test

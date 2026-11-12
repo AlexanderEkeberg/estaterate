@@ -32,8 +32,11 @@ public class HistoricalWeatherClient {
             "temperature_2m_min",
             "precipitation_sum",
             "snowfall_sum",
-            "sunshine_duration",
             "wind_speed_10m_max");
+
+    private static final String HOURLY_VARIABLES = String.join(",",
+            "direct_normal_irradiance",
+            "cloud_cover");
 
     private final String baseUrl;
     private final RestTemplate restTemplate;
@@ -63,6 +66,7 @@ public class HistoricalWeatherClient {
                 .queryParam("start_date", startDate)
                 .queryParam("end_date", endDate)
                 .queryParam("daily", DAILY_VARIABLES)
+                .queryParam("hourly", HOURLY_VARIABLES)
                 .queryParam("timezone", "Europe/Oslo")
                 .toUriString();
 
@@ -95,10 +99,19 @@ public class HistoricalWeatherClient {
                 nullToEmpty(daily.temperatureMin()),
                 nullToEmpty(daily.precipitationSum()),
                 nullToEmpty(daily.snowfallSum()),
-                nullToEmpty(daily.sunshineDuration()),
                 nullToEmpty(daily.windSpeedMax()));
         if (series.stream().anyMatch(values -> values.size() != days)) {
             throw new WeatherApiException("Open-Meteo returned daily lists of different length");
+        }
+
+        OpenMeteoResponse.Hourly hourly = body.hourly();
+        if (hourly == null || hourly.time() == null || hourly.time().isEmpty()) {
+            throw new WeatherApiException("Open-Meteo returned no hourly data");
+        }
+        int hours = hourly.time().size();
+        if (nullToEmpty(hourly.directNormalIrradiance()).size() != hours
+                || nullToEmpty(hourly.cloudCover()).size() != hours) {
+            throw new WeatherApiException("Open-Meteo returned hourly lists of different length");
         }
     }
 
