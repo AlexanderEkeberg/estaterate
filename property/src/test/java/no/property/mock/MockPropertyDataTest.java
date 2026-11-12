@@ -1,5 +1,6 @@
 package no.property.mock;
 
+import no.property.dto.PropertyDetailsDTO;
 import no.property.dto.PropertyLocationDTO;
 import org.junit.jupiter.api.Test;
 
@@ -43,5 +44,21 @@ class MockPropertyDataTest {
     void unknownFinnkodeOrMissingFinnkodeGivesNoDemoListing() {
         assertThat(mock.demoListing(URI.create("https://www.finn.no/realestate/homes/ad.html?finnkode=1"))).isEmpty();
         assertThat(mock.demoListing(URI.create("https://www.finn.no/realestate/homes/ad.html"))).isEmpty();
+    }
+
+    @Test
+    void detailsForDemoListingMatchTheSavedListing() {
+        URI uri = URI.create("https://www.finn.no/realestate/homes/ad.html?finnkode=478564477");
+
+        PropertyDetailsDTO details = mock.details(uri).orElseThrow();
+
+        assertThat(details).isEqualTo(
+                new PropertyDetailsDTO("Niels Juels gate 7, 0272 Oslo", "0272", 17_800_000, 179));
+    }
+
+    @Test
+    void unknownOrMissingFinnkodeGivesNoDetails() {
+        assertThat(mock.details(URI.create("https://www.finn.no/realestate/homes/ad.html?finnkode=1"))).isEmpty();
+        assertThat(mock.details(URI.create("https://www.finn.no/realestate/homes/ad.html"))).isEmpty();
     }
 }

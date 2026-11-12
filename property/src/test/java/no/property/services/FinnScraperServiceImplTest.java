@@ -1,6 +1,7 @@
 package no.property.services;
 
 import no.property.client.FinnClient;
+import no.property.dto.PropertyDetailsDTO;
 import no.property.dto.ScrapeResponseDTO;
 import no.property.event.CoordinatesSource;
 import no.property.event.PropertySubmittedEvent;
@@ -146,5 +147,53 @@ class FinnScraperServiceImplTest {
 
         assertThat(fetchCalls).isEqualTo(1);
         assertThat(published.getFirst().coordinatesSource()).isEqualTo(CoordinatesSource.SCRAPED);
+    }
+
+    private static final String FROGNER = "https://www.finn.no/realestate/homes/ad.html?finnkode=478564477";
+    private static final String SOFIENBERG = "https://www.finn.no/realestate/homes/ad.html?finnkode=476403696";
+
+    @Test
+    void detailsBelongToTheSameListingAsThePublishedEvent() {
+        FinnScraperServiceImpl service = service(failing(), true, false);
+
+        service.scrape(FROGNER);
+        PropertyDetailsDTO details = service.getDetails(FROGNER).orElseThrow();
+
+        assertThat(published.getFirst().url()).isEqualTo(FROGNER);
+        assertThat(details.postalCode()).isEqualTo(published.getFirst().postalCode());
+        assertThat(details.address()).isEqualTo("Niels Juels gate 7, 0272 Oslo");
+    }
+
+    @Test
+    void detailsDoNotDependOnWhichListingWasScrapedLast() {
+        FinnScraperServiceImpl service = service(failing(), true, false);
+
+        PropertyDetailsDTO before = service.getDetails(FROGNER).orElseThrow();
+        service.scrape(SOFIENBERG);
+        PropertyDetailsDTO after = service.getDetails(FROGNER).orElseThrow();
+
+        assertThat(after).isEqualTo(before);
+        assertThat(service.getDetails(SOFIENBERG).orElseThrow().address())
+                .isEqualTo("Sofienberggata 23B, 0558 Oslo");
+    }
+
+    @Test
+    void detailsRejectInvalidUrlsWithoutContactingFinn() {
+        FinnScraperServiceImpl service = service(failing(), true, false);
+
+        for (String url : List.of(
+                "http://www.finn.no/realestate/homes/ad.html?finnkode=478564477",
+                "https://evil.example/realestate/homes/ad.html?finnkode=478564477",
+                "https://www.finn.no/car/used/ad.html?finnkode=478564477")) {
+            assertThatThrownBy(() -> service.getDetails(url)).isInstanceOf(InvalidFinnUrlException.class);
+        }
+        assertThat(fetchCalls).isZero();
+    }
+
+    @Test
+    void detailsNeverContactFinn() {
+        assertThat(service(failing(), true, false).getDetails(URL)).isEmpty();
+        assertThat(service(failing(), false, false).getDetails(FROGNER)).isEmpty();
+        assertThat(fetchCalls).isZero();
     }
 }
