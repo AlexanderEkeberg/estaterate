@@ -1,7 +1,7 @@
 package no.property.controllers;
 
 import lombok.RequiredArgsConstructor;
-import no.property.dto.PropertyLocationDTO;
+import no.property.dto.PropertyDetailsDTO;
 import no.property.dto.ScrapeRequestDTO;
 import no.property.dto.ScrapeResponseDTO;
 import no.property.services.FinnScraperService;
@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -27,15 +28,13 @@ public class PropertyController {
         return ResponseEntity.ok(result);
     }
 
-    // Midlertidig: brukes internt av crimerate og school til de går over til Kafka. Ikke for frontend.
-    @GetMapping
-    public ResponseEntity<PropertyLocationDTO> getLatest() {
-        PropertyLocationDTO latest = finnScraperService.getLatest();
-        if (latest == null) {
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.ok(latest);
+    @GetMapping("/details")
+    public ResponseEntity<PropertyDetailsDTO> details(@RequestParam String url) {
+        return finnScraperService.getDetails(url)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
+
     @GetMapping("/secured")
     public ResponseEntity<String> secured(@AuthenticationPrincipal Jwt jwt) {
         String username = jwt.getClaimAsString("preferred_username");

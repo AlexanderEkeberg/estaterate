@@ -2,6 +2,7 @@ package no.property.services;
 
 import lombok.extern.slf4j.Slf4j;
 import no.property.client.FinnClient;
+import no.property.dto.PropertyDetailsDTO;
 import no.property.dto.PropertyLocationDTO;
 import no.property.dto.ScrapeResponseDTO;
 import no.property.event.PropertyEventPublisher;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.net.URI;
 import java.time.Instant;
+import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
@@ -31,10 +33,6 @@ public class FinnScraperServiceImpl implements FinnScraperService {
     private final MockPropertyData mock;
     private final boolean fallbackEnabled;
     private final boolean mockForced;
-
-    // TODO: fjernes sammen med GET /api/properties når school bruker Kafka.
-    // Beholdes midlertidig fordi school fortsatt henter data over REST.
-    private PropertyLocationDTO latest;
 
     public FinnScraperServiceImpl(
             FinnClient finnClient,
@@ -73,8 +71,6 @@ public class FinnScraperServiceImpl implements FinnScraperService {
                 property = mock.fallback(uri.toString());
             }
         }
-        this.latest = property;
-
         String analysisId = UUID.randomUUID().toString();
 
         eventPublisher.publish(new PropertySubmittedEvent(
@@ -129,7 +125,11 @@ public class FinnScraperServiceImpl implements FinnScraperService {
     }
 
     @Override
-    public PropertyLocationDTO getLatest() {
-        return latest;
+    public Optional<PropertyDetailsDTO> getDetails(String url) {
+        URI uri = finnUrlValidator.validate(url);
+        if (!fallbackEnabled) {
+            return Optional.empty();
+        }
+        return mock.details(uri);
     }
 }

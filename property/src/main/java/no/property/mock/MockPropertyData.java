@@ -1,5 +1,6 @@
 package no.property.mock;
 
+import no.property.dto.PropertyDetailsDTO;
 import no.property.dto.PropertyLocationDTO;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
@@ -54,6 +55,13 @@ public class MockPropertyData {
         return finnkode(uri)
                 .map(listingsByFinnkode::get)
                 .map(listing -> toDto(listing, uri.toString()));
+    }
+
+    public Optional<PropertyDetailsDTO> details(URI uri) {
+        return finnkode(uri)
+                .map(listingsByFinnkode::get)
+                .map(listing -> new PropertyDetailsDTO(listing.address(), listing.postalCode(),
+                        listing.askingPrice(), listing.usableAreaInternal()));
     }
 
     private static Optional<String> finnkode(URI uri) {
