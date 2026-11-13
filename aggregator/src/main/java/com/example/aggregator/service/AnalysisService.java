@@ -11,6 +11,8 @@ public interface AnalysisService {
 
     void processScoreEvent(ScoreEvent event);
 
+    void processPropertySubmitted(String analysisId, String url);
+
     AnalysisStatusResponse getAnalysis(String analysisId);
 
     record AnalysisStatusResponse(
