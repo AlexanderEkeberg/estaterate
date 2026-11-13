@@ -55,6 +55,7 @@ services:
       - consul
       - property
       - aggregator
+      - favourites
       - keycloak
     networks:
       - estaterate
@@ -98,6 +99,43 @@ services:
       - ./data/aggregator-db:/var/lib/postgresql/data
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U postgres -d aggregator" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - estaterate
+
+  favourites:
+    build:
+      context: ./favourites
+      dockerfile: Dockerfile
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    depends_on:
+      favourites-db:
+        condition: service_healthy
+      consul:
+        condition: service_started
+      keycloak:
+        condition: service_started
+      aggregator:
+        condition: service_started
+    networks:
+      - estaterate
+
+  favourites-db:
+    image: postgres:17
+    container_name: favourites-db
+    environment:
+      POSTGRES_DB: favourites
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - ./data/favourites-db:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d favourites" ]
       interval: 5s
       timeout: 5s
       retries: 10
