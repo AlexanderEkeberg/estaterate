@@ -1,5 +1,8 @@
 package no.favourites.controller;
 
+import no.favourites.client.AggregatorClient;
+import no.favourites.client.AnalysisSummary;
+import no.favourites.exception.AggregatorUnavailableException;
 import no.favourites.repository.FavouriteRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -7,10 +10,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -32,9 +42,17 @@ class FavouriteApiTest {
     @Autowired
     private FavouriteRepository repository;
 
+    @MockitoBean
+    private AggregatorClient aggregatorClient;
+
+    private static final AnalysisSummary DONE = new AnalysisSummary("DONE",
+            Map.of("WEATHER", new AnalysisSummary.Category(72)),
+            new AnalysisSummary.Property("Niels Juels gate 7, 0272 Oslo"));
+
     @BeforeEach
     void clean() {
         repository.deleteAll();
+        when(aggregatorClient.getAnalysis(any())).thenReturn(Optional.of(DONE));
     }
 
     private static RequestPostProcessor user(String subject) {
@@ -68,7 +86,10 @@ class FavouriteApiTest {
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[0].analysisId").value(SECOND))
                 .andExpect(jsonPath("$[1].analysisId").value(FIRST))
-                .andExpect(jsonPath("$[0].savedAt").exists());
+                .andExpect(jsonPath("$[0].savedAt").exists())
+                .andExpect(jsonPath("$[0].available").value(true))
+                .andExpect(jsonPath("$[0].scores.WEATHER").value(72))
+                .andExpect(jsonPath("$[0].address").value("Niels Juels gate 7, 0272 Oslo"));
 
         mvc.perform(delete("/api/favourites/" + FIRST).with(user("alice")))
                 .andExpect(status().isNoContent());
@@ -130,5 +151,28 @@ class FavouriteApiTest {
                 .andExpect(status().isBadRequest());
 
         assertThat(repository.count()).isZero();
+    }
+
+    @Test
+    void analysisThatDoesNotExistInAggregatorIsNotSaved() throws Exception {
+        when(aggregatorClient.getAnalysis(UUID.fromString(FIRST))).thenReturn(Optional.empty());
+
+        save("alice", FIRST, 404);
+
+        assertThat(repository.count()).isZero();
+    }
+
+    @Test
+    void aggregatorDownRejectsSavingButListingStillWorks() throws Exception {
+        save("alice", FIRST, 201);
+        when(aggregatorClient.getAnalysis(any())).thenThrow(new AggregatorUnavailableException(null));
+
+        save("alice", SECOND, 503);
+
+        mvc.perform(get("/api/favourites").with(user("alice")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].analysisId").value(FIRST))
+                .andExpect(jsonPath("$[0].available").value(false));
     }
 }
