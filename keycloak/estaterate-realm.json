@@ -1,0 +1,39 @@
+{
+  "realm": "estaterate",
+  "enabled": true,
+  "sslRequired": "none",
+  "registrationAllowed": false,
+  "clients": [
+    {
+      "clientId": "estaterate-client",
+      "name": "Estaterate",
+      "enabled": true,
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": true,
+      "redirectUris": ["http://localhost:5173/*", "http://127.0.0.1:5173/*"],
+      "webOrigins": ["http://localhost:5173", "http://127.0.0.1:5173"],
+      "attributes": {
+        "pkce.code.challenge.method": "S256"
+      }
+    }
+  ],
+  "users": [
+    {
+      "id": "5c2c5533-3a32-45b0-88d7-127e15b7a7a1",
+      "username": "tester",
+      "enabled": true,
+      "email": "tester@estaterate.local",
+      "emailVerified": true,
+      "firstName": "Test",
+      "lastName": "User",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "tester",
+          "temporary": false
+        }
+      ]
+    }
+  ]
+}

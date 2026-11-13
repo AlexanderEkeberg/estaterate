@@ -1,7 +1,10 @@
 package no.weather.service;
 
-import no.weather.dto.WeatherResponseDTO;
+import no.weather.events.PropertySubmittedEvent;
+import no.weather.events.ScoreEvent;
 
 public interface WeatherService {
-    WeatherResponseDTO getWeather();
+
+    // sender alltid tilbake en ScoreEvent, også når noe går galt
+    ScoreEvent calculate(PropertySubmittedEvent event);
 }

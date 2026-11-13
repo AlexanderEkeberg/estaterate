@@ -3,8 +3,8 @@ services:
     build:
       context: ./property
       dockerfile: Dockerfile
-    ports:
-      - "8090:8090"
+#    ports:
+#      - "8090:8090"
     environment:
       SPRING_PROFILES_ACTIVE: docker
     depends_on:
@@ -17,8 +17,23 @@ services:
     build:
       context: ./weather
       dockerfile: Dockerfile
-    ports:
-      - "8082:8082"
+#    ports:
+#      - "8082:8082"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    depends_on:
+      - property
+      - consul
+      - kafka
+    networks:
+      - estaterate
+
+  crimerate:
+    build:
+      context: ./crimerate
+      dockerfile: Dockerfile
+#    ports:
+#      - "8084:8084"
     environment:
       SPRING_PROFILES_ACTIVE: docker
     depends_on:
@@ -34,14 +49,98 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
     depends_on:
-      - property
-      - weather
-      - school
       - consul
+      - property
+      - aggregator
+      - favourites
+      - keycloak
     networks:
       - estaterate
 
+  aggregator:
+    build:
+      context: ./aggregator
+      dockerfile: Dockerfile
+#    ports:
+#      - "8085:8085"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    depends_on:
+     aggregator-db:
+      condition: service_healthy
+     property:
+      condition: service_started
+     weather:
+      condition: service_started
+     school:
+      condition: service_started
+     crimerate:
+      condition: service_started
+     consul:
+      condition: service_started
+     kafka:
+      condition: service_started
+    networks:
+      - estaterate
+
+  aggregator-db:
+    image: postgres:17
+    container_name: aggregator-db
+    environment:
+      POSTGRES_DB: aggregator
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./data/aggregator-db:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d aggregator" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - estaterate
+
+  favourites:
+    build:
+      context: ./favourites
+      dockerfile: Dockerfile
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    depends_on:
+      favourites-db:
+        condition: service_healthy
+      consul:
+        condition: service_started
+      keycloak:
+        condition: service_started
+      aggregator:
+        condition: service_started
+    networks:
+      - estaterate
+
+  favourites-db:
+    image: postgres:17
+    container_name: favourites-db
+    environment:
+      POSTGRES_DB: favourites
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - ./data/favourites-db:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d favourites" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - estaterate
 
   consul:
     image: hashicorp/consul:2.0.0
@@ -49,6 +148,46 @@ services:
     ports:
       - "8500:8500"
     command: agent -dev -node=consul -client=0.0.0.0
+    networks:
+      - estaterate
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.7.5
+    container_name: keycloak
+    command: start-dev --import-realm
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+      KC_HOSTNAME: http://localhost:8180
+      KC_HOSTNAME_BACKCHANNEL_DYNAMIC: "true"
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://keycloak-db:5432/keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: keycloak
+    ports:
+      - "8180:8080"
+    volumes:
+      - ./keycloak:/opt/keycloak/data/import:ro
+    depends_on:
+      keycloak-db:
+        condition: service_healthy
+    networks:
+      - estaterate
+
+  keycloak-db:
+    image: postgres:17
+    container_name: keycloak-db
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: keycloak
+    volumes:
+      - ./data/keycloak-db:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U keycloak -d keycloak" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
     networks:
       - estaterate
 
@@ -71,26 +210,22 @@ services:
     networks:
       - estaterate
 
-#  district:
-#    build:
-#      context: ./district
-#      dockerfile: Dockerfile
-#    ports:
-#      - "8081:8081"
-#    environment:
-#      SPRING_PROFILES_ACTIVE: docker
-#    depends_on:
-#      - property
-#      - consul
-#    networks:
-#      - estaterate
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: frontend
+    ports:
+      - "5173:5173"
+    networks:
+      - estaterate
 
   school:
     build:
       context: ./school
       dockerfile: Dockerfile
-    ports:
-      - "8083:8083"
+#    ports:
+#      - "8083:8083"
     environment:
       SPRING_PROFILES_ACTIVE: docker
     depends_on:

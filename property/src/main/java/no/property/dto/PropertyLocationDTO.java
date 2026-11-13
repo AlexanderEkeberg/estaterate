@@ -10,8 +10,12 @@ import lombok.NoArgsConstructor;
 public class PropertyLocationDTO {
     private String url;
     private String postalCode;
-    private double latitude;
-    private double longitude;
+    private Double latitude;
+    private Double longitude;
     private String municipalityNumber;
     private String district;
+
+    public boolean hasRequiredFields() {
+        return latitude != null && longitude != null && postalCode != null && municipalityNumber != null;
+    }
 }
