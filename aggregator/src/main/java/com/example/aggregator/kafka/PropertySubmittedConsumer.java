@@ -32,7 +32,7 @@ public class PropertySubmittedConsumer {
         }
 
         log.info("Received property-submitted for analysisId={}", event.analysisId());
-        analysisService.ensureAnalysisExists(event.analysisId());
+        analysisService.processPropertySubmitted(event.analysisId(), event.url());
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)

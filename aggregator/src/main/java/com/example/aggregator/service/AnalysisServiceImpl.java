@@ -8,6 +8,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import com.example.aggregator.client.PropertyClient;
+import com.example.aggregator.dto.PropertyDetailsDTO;
+import com.example.aggregator.kafka.ScoreStatus;
+import org.springframework.web.client.RestClientException;
+
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -17,8 +22,9 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class AnalysisServiceImpl implements AnalysisService {
 
-    private static final List<String> KNOWN_CATEGORIES = List.of("WEATHER", "CRIME", "SCHOOL");
+    private static final List<String> KNOWN_CATEGORIES = List.of("WEATHER", "CRIME", "SCHOOL", "PROPERTY");
 
+    private final PropertyClient propertyClient;
     private final AnalysisResultRepository repository;
 
     @Override
@@ -63,5 +69,63 @@ public class AnalysisServiceImpl implements AnalysisService {
         boolean isDone = rows.stream().allMatch(row -> row.getStatus() != CategoryStatus.PENDING);
 
         return new AnalysisStatusResponse(analysisId, isDone ? "DONE" : "RUNNING", categories);
+    }
+
+    @Override
+    public void processPropertySubmitted(String analysisId, String url) {
+        if (analysisId == null || analysisId.isBlank()) return;
+
+        ensureAnalysisExists(analysisId);
+
+        if (url == null || url.isBlank()) {
+            processScoreEvent(new ScoreEvent(
+                    analysisId,
+                    "PROPERTY",
+                    ScoreStatus.FAILED,
+                    null,
+                    null,
+                    "Property URL is missing"
+            ));
+            return;
+        }
+
+        try {
+            var details = propertyClient.getDetails(url);
+            if (details.isPresent()) {
+                PropertyDetailsDTO d = details.get();
+                LinkedHashMap<String, Object> data = new LinkedHashMap<>();
+                data.put("address", d.address());
+                data.put("postalCode", d.postalCode());
+                data.put("askingPrice", d.askingPrice());
+                data.put("usableArea", d.usableArea());
+
+                processScoreEvent(new ScoreEvent(
+                        analysisId,
+                        "PROPERTY",
+                        ScoreStatus.SUCCESS,
+                        null,
+                        data,
+                        null
+                ));
+            } else {
+                processScoreEvent(new ScoreEvent(
+                        analysisId,
+                        "PROPERTY",
+                        ScoreStatus.FAILED,
+                        null,
+                        null,
+                        "Property details not found for url: " + url
+                ));
+            }
+        } catch (RestClientException e) {
+            processScoreEvent(new ScoreEvent(
+                    analysisId,
+                    "PROPERTY",
+                    ScoreStatus.FAILED,
+                    null,
+                    null,
+                    "Could not fetch property details: " + e.getMessage()
+            ));
+        }
     }
 }
