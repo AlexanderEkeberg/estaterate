@@ -96,6 +96,7 @@ services:
     depends_on:
       - property
       - consul
+      - kafka
     networks:
       - estaterate
 

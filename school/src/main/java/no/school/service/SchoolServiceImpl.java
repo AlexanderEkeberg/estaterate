@@ -25,7 +25,7 @@ public class SchoolServiceImpl implements SchoolService {
 
     @Override
     public SchoolRatingDTO getRating() {
-        /*
+
         PropertyLocationDTO location = propertyClient.getPropertyLocation();
         if (location == null || location.getLatitude() == null || location.getLongitude() == null) {
             log.warn("Ingen lokasjonsdata tilgjengelig fra property");
@@ -33,13 +33,13 @@ public class SchoolServiceImpl implements SchoolService {
         }
         double lat = Double.parseDouble(location.getLatitude());
         double lon = Double.parseDouble(location.getLongitude());
-        */
+
         //Test coordinates
         //double lat = 59.9139;
         //double lon = 10.7522;
 
-        double lat = 61.1151;
-        double lon = 10.4663;
+        //double lat = 61.1151;
+        //double lon = 10.4663;
 
         List<NsrUnitDTO> schools = fetchSchoolsWithCoordinates();
         if (schools.isEmpty()) {
