@@ -1,6 +1,7 @@
 import { MapPin, TriangleAlert } from "lucide-react";
 import type { PropertyReport } from "../../types/report.js";
 import { formatNok, formatNumber } from "../../lib/format.js";
+import { SaveButton } from "./SaveButton.js";
 import ui from "../../style/ui.module.css";
 import styles from "./OverviewHeader.module.css";
 
@@ -9,37 +10,44 @@ export function OverviewHeader({ report }: { report: PropertyReport }) {
 
   return (
     <section aria-labelledby="overview-title" className={styles.header}>
-      <div className={styles.titleBlock}>
-        <div className={ui.eyebrow}>Property overview</div>
-        <h1 id="overview-title" className={ui.h1}>
-          Your property overview
-        </h1>
+      <div className={styles.row}>
+        <div className={styles.titleBlock}>
+          <div className={ui.eyebrow}>Property overview</div>
+          <h1 id="overview-title" className={ui.h1}>
+            Your property overview
+          </h1>
 
-        {report.address && (
-          <div className={styles.address}>
-            <MapPin size={18} color="var(--er-muted)" aria-hidden />
-            <span>{report.address}</span>
-          </div>
-        )}
+          {report.address && (
+            <div className={styles.address}>
+              <MapPin size={18} color="var(--er-muted)" aria-hidden />
+              <span>{report.address}</span>
+            </div>
+          )}
 
-        {hasFacts && (
-          <div className={styles.facts}>
-            {report.askingPriceNok != null && (
-              <span className={styles.fact}>
-                Asking price <strong>{formatNok(report.askingPriceNok)}</strong>
-              </span>
-            )}
-            {report.sizeM2 != null && (
-              <span className={styles.fact}>
-                Size{" "}
-                <strong>
-                  {formatNumber(report.sizeM2)} m²
-                  {report.sizeType ? ` (${report.sizeType})` : ""}
-                </strong>
-              </span>
-            )}
-          </div>
-        )}
+          {hasFacts && (
+            <div className={styles.facts}>
+              {report.askingPriceNok != null && (
+                <span className={styles.fact}>
+                  Asking price{" "}
+                  <strong>{formatNok(report.askingPriceNok)}</strong>
+                </span>
+              )}
+              {report.sizeM2 != null && (
+                <span className={styles.fact}>
+                  Size{" "}
+                  <strong>
+                    {formatNumber(report.sizeM2)} m²
+                    {report.sizeType ? ` (${report.sizeType})` : ""}
+                  </strong>
+                </span>
+              )}
+            </div>
+          )}
+        </div>
+
+        <div className={styles.actions}>
+          <SaveButton analysisId={report.id} />
+        </div>
       </div>
 
       {report.usedSavedData && (
