@@ -67,12 +67,18 @@ class AggregatorClientTest {
     }
 
     @Test
-    void unknownAnalysisIsEmptyButServerErrorMeansUnavailable() {
+    void unknownAnalysisIsEmptyButFailuresMeanUnavailable() {
         server.expect(requestTo(URL)).andRespond(withStatus(HttpStatus.NOT_FOUND));
         assertThat(client.getAnalysis(ID)).isEmpty();
 
         server.reset();
         server.expect(requestTo(URL)).andRespond(withServerError());
+        assertThatThrownBy(() -> client.getAnalysis(ID)).isInstanceOf(AggregatorUnavailableException.class);
+
+        server.reset();
+        server.expect(requestTo(URL)).andRespond(request -> {
+            throw new IllegalStateException("No instances available for aggregator");
+        });
         assertThatThrownBy(() -> client.getAnalysis(ID)).isInstanceOf(AggregatorUnavailableException.class);
     }
 }
