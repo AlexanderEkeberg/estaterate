@@ -19,6 +19,7 @@ import java.util.List;
 public class SchoolServiceImpl implements SchoolService {
 
     private static final String CATEGORY = "SCHOOL";
+    private static final String OSLO = "0301";
     private final NsrClient nsrClient;
     private List<NsrUnitDTO> cachedSchools;
 
@@ -28,6 +29,9 @@ public class SchoolServiceImpl implements SchoolService {
         if (event.latitude() == null || event.longitude() == null) {
             log.warn("Property has no coordinates: {}", analysisId);
             return ScoreEvent.failed(analysisId, CATEGORY, "Mangler koordinater");
+        }
+        if (!OSLO.equals(event.municipalityNumber())) {
+            return ScoreEvent.failed(analysisId, CATEGORY, "School støtter foreløpig bare Oslo");
         }
 
         try {
@@ -69,7 +73,7 @@ public class SchoolServiceImpl implements SchoolService {
             return cachedSchools;
         }
 
-        NsrUnitResponseDTO response = nsrClient.getSchoolsByMunicipality("0301");
+        NsrUnitResponseDTO response = nsrClient.getSchoolsByMunicipality(OSLO);
         if (response == null || response.getUnits() == null) {
             log.warn("Ingen respons fra NSR");
             return List.of();
