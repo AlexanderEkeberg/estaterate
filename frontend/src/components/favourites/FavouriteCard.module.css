@@ -1,0 +1,117 @@
+.card {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.label {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--er-muted);
+}
+
+.score {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  margin-top: 2px;
+}
+
+.scoreValue {
+  font-size: 44px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.outOf {
+  font-size: 14px;
+  color: var(--er-muted);
+}
+
+.heart {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  border: none;
+  border-radius: var(--er-radius-sm);
+  background: var(--er-blue-soft);
+  color: var(--er-blue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.heart:hover {
+  background: #dbe7ff;
+}
+
+.address {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.crime {
+  background: var(--er-crime-bg);
+  color: var(--er-crime-text);
+}
+
+.schools {
+  background: var(--er-schools-bg);
+  color: var(--er-schools-text);
+}
+
+.unavailable {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: var(--er-muted);
+}
+
+.saved {
+  font-size: 13px;
+  color: var(--er-muted);
+}
+
+.foot {
+  margin-top: auto;
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 14px;
+  border-top: 1px solid var(--er-border);
+}
+
+.foot a {
+  text-decoration: none;
+}

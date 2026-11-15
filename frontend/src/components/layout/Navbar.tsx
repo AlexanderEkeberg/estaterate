@@ -1,5 +1,6 @@
-import { LogOut, User } from "lucide-react";
+import { Heart, LogOut, User } from "lucide-react";
 import { useAuth } from "../../auth/AuthProvider.js";
+import { AppLink } from "../ui/AppLink.js";
 import { Logo } from "../ui/Logo.js";
 import { Button } from "../ui/Button.js";
 import styles from "./Navbar.module.css";
@@ -9,7 +10,9 @@ export function Navbar() {
 
   return (
     <header className={styles.navbar}>
-      <Logo />
+      <AppLink to="/" className={styles.home} aria-label="Estaterate home">
+        <Logo />
+      </AppLink>
       <div className={styles.actions}>
         {status === "anonymous" && (
           <Button variant="ghost" onClick={login}>
@@ -19,6 +22,10 @@ export function Navbar() {
         )}
         {status === "authenticated" && (
           <>
+            <AppLink to="/favourites" className={styles.link}>
+              <Heart size={16} aria-hidden />
+              Favourites
+            </AppLink>
             {username && (
               <span className={styles.user}>
                 <User size={16} aria-hidden />

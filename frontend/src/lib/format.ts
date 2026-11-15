@@ -25,6 +25,13 @@ export const formatShortDate = (iso: string) =>
     month: "short",
   });
 
+export const formatSavedDate = (iso: string) =>
+  new Date(iso).toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+
 export const formatWeekday = (iso: string) =>
   isToday(iso)
     ? "Today"
