@@ -2,14 +2,13 @@ package no.school.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import no.school.client.PropertyClient;
 import no.school.dto.NsrUnitDTO;
 import no.school.dto.NsrUnitResponseDTO;
-import no.school.dto.PropertyLocationDTO;
-import no.school.dto.SchoolRatingDTO;
+import no.school.events.ScoreEvent;
 import org.springframework.stereotype.Service;
 import no.school.client.NsrClient;
-
+import no.school.dto.SchoolData;
+import no.school.events.PropertySubmittedEvent;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,52 +17,51 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SchoolServiceImpl implements SchoolService {
 
-    private final PropertyClient propertyClient;
+    private static final String CATEGORY = "SCHOOL";
     private final NsrClient nsrClient;
-
     private List<NsrUnitDTO> cachedSchools;
 
     @Override
-    public SchoolRatingDTO getRating() {
-
-        PropertyLocationDTO location = propertyClient.getPropertyLocation();
-        if (location == null || location.getLatitude() == null || location.getLongitude() == null) {
-            log.warn("Ingen lokasjonsdata tilgjengelig fra property");
-            return null;
-        }
-        double lat = Double.parseDouble(location.getLatitude());
-        double lon = Double.parseDouble(location.getLongitude());
-
-        //Test coordinates
-        //double lat = 59.9139;
-        //double lon = 10.7522;
-
-        //double lat = 61.1151;
-        //double lon = 10.4663;
-
-        List<NsrUnitDTO> schools = fetchSchoolsWithCoordinates();
-        if (schools.isEmpty()) {
-            log.warn("Ingen skoler å regne avstand mot");
-            return null;
+    public ScoreEvent calculate(PropertySubmittedEvent event) {
+        String analysisId = event.analysisId();
+        if (event.latitude() == null || event.longitude() == null) {
+            log.warn("Property has no coordinates: {}", analysisId);
+            return ScoreEvent.failed(analysisId, CATEGORY, "Mangler koordinater");
         }
 
-        NsrUnitDTO nearest = null;
-        double minDistance = Double.MAX_VALUE;
-        for (NsrUnitDTO school : schools) {
-            double distance = distanceKm(lat, lon,
-                    school.getCoordinate().getLatitude(),
-                    school.getCoordinate().getLongitude());
-            if (distance < minDistance) {
-                minDistance = distance;
-                nearest = school;
+        try {
+            double lat = event.latitude();
+            double lon = event.longitude();
+
+            List<NsrUnitDTO> schools = fetchSchoolsWithCoordinates();
+            if (schools.isEmpty()) {
+                return ScoreEvent.failed(analysisId, CATEGORY, "Fikk ikke hentet skoler fra NSR");
             }
+
+            NsrUnitDTO nearest = null;
+            double minDistance = Double.MAX_VALUE;
+            for (NsrUnitDTO school : schools) {
+                double distance = distanceKm(lat, lon,
+                        school.getCoordinate().getLatitude(),
+                        school.getCoordinate().getLongitude());
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    nearest = school;
+                }
+            }
+
+            int score = minDistance <= 5.0 ? 100 : minDistance <= 10.0 ? 50 : 0;
+            double rounded = Math.round(minDistance * 100.0) / 100.0;
+
+            return ScoreEvent.success(analysisId, CATEGORY, score,
+                    new SchoolData(nearest.getName(), rounded));
+        } catch (Exception e) {
+            log.error("School failed for {}", analysisId, e);
+            String message = e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName();
+            return ScoreEvent.failed(analysisId, CATEGORY, message);
         }
-
-        int score = minDistance <= 5.0 ? 100 : minDistance <= 10.0 ? 50 : 0;
-        double rounded = Math.round(minDistance * 100.0) / 100.0;
-
-        return new SchoolRatingDTO(score, nearest.getName(), rounded);
     }
+
 
     private synchronized List<NsrUnitDTO> fetchSchoolsWithCoordinates() {
         if (cachedSchools != null) {
