@@ -9,7 +9,12 @@ export type Favourite = {
   status: string | null;
   scores: Record<string, number>;
   address: string | null;
+  askingPrice: number | null;
+  usableArea: number | null;
 };
+
+const toNumber = (value: unknown) =>
+  typeof value === "number" && Number.isFinite(value) ? value : null;
 
 async function send(
   method: string,
@@ -66,6 +71,8 @@ function toFavourite(value: unknown): Favourite | null {
     status: typeof item.status === "string" ? item.status : null,
     scores,
     address: typeof item.address === "string" ? item.address : null,
+    askingPrice: toNumber(item.askingPrice),
+    usableArea: toNumber(item.usableArea),
   };
 }
 

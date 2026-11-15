@@ -1,10 +1,11 @@
+import { useEffect, useState } from "react";
 import { Navbar } from "../components/layout/Navbar.js";
 import { DataNotice } from "../components/analysis/DataNotice.js";
 import { AnalysisProgress } from "../components/analysis/AnalysisProgress.js";
 import type { CategoryProgress } from "../components/analysis/AnalysisProgress.js";
 import {
   DEFAULT_CATEGORIES,
-  sortCategories,
+  progressCategories,
 } from "../components/analysis/categories.js";
 import { useAnalysis } from "../hooks/useAnalysis.js";
 import { loadScrapeResult } from "../storage/scrapeResults.js";
@@ -16,15 +17,31 @@ type AnalysisPageProps = {
   analysisId: string;
 };
 
+const SPINNER_DELAY_MS = 300;
+
+function DelayedSpinner() {
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => setVisible(true), SPINNER_DELAY_MS);
+    return () => window.clearTimeout(timer);
+  }, []);
+
+  return visible ? (
+    <div className={styles.spinner} role="status" aria-label="Loading report" />
+  ) : null;
+}
+
 export function AnalysisPage({ analysisId }: AnalysisPageProps) {
   const scrapeResult = loadScrapeResult(analysisId);
   const notice =
     scrapeResult?.coordinatesSource === "MOCK" ? scrapeResult.message : null;
 
-  const { analysis, timedOut, finished } = useAnalysis(analysisId);
+  const saved = new URLSearchParams(window.location.search).has("saved");
+  const { analysis, timedOut, finished } = useAnalysis(analysisId, saved);
   const categories: CategoryProgress[] = (
     analysis
-      ? sortCategories(Object.keys(analysis.categories))
+      ? progressCategories(Object.keys(analysis.categories))
       : DEFAULT_CATEGORIES
   ).map((category) => {
     const status = analysis?.categories[category]?.status ?? "PENDING";
@@ -39,6 +56,24 @@ export function AnalysisPage({ analysisId }: AnalysisPageProps) {
       <OverviewPage
         report={toPropertyReport(analysis, scrapeResult, timedOut)}
       />
+    );
+  }
+
+  if (saved) {
+    return (
+      <main className={styles.page}>
+        <Navbar />
+        {finished ? (
+          <section className={styles.content}>
+            <h1 className={`${styles.title} bold-font`}>Report unavailable</h1>
+            <p className={styles.subtitle}>
+              This report is unavailable right now. Try again later.
+            </p>
+          </section>
+        ) : (
+          <DelayedSpinner />
+        )}
+      </main>
     );
   }
 

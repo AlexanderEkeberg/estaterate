@@ -6,14 +6,10 @@ import java.util.Map;
 import java.util.TreeMap;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public record AnalysisSummary(String status, Map<String, Category> categories, Property property) {
+public record AnalysisSummary(String status, Map<String, Category> categories) {
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record Category(Integer score) {
-    }
-
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    public record Property(String address) {
+    public record Category(Integer score, Object data) {
     }
 
     public Map<String, Integer> scores() {
@@ -25,6 +21,19 @@ public record AnalysisSummary(String status, Map<String, Category> categories, P
     }
 
     public String address() {
-        return property == null ? null : property.address();
+        return propertyField("address") instanceof String address && !address.isBlank() ? address : null;
+    }
+
+    public Long askingPrice() {
+        return propertyField("askingPrice") instanceof Number price ? price.longValue() : null;
+    }
+
+    public Integer usableArea() {
+        return propertyField("usableArea") instanceof Number area ? area.intValue() : null;
+    }
+
+    private Object propertyField(String name) {
+        Category property = categories == null ? null : categories.get("PROPERTY");
+        return property != null && property.data() instanceof Map<?, ?> data ? data.get(name) : null;
     }
 }

@@ -12,7 +12,7 @@ export type AnalysisState = {
   finished: boolean;
 };
 
-export function useAnalysis(analysisId: string): AnalysisState {
+export function useAnalysis(analysisId: string, saved: boolean): AnalysisState {
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
   const [timedOut, setTimedOut] = useState(false);
 
@@ -35,7 +35,7 @@ export function useAnalysis(analysisId: string): AnalysisState {
         if (cancelled) return;
         console.error(error);
       }
-      if (Date.now() - startedAt >= TIMEOUT_MS) {
+      if (saved || Date.now() - startedAt >= TIMEOUT_MS) {
         setTimedOut(true);
         return;
       }
@@ -47,7 +47,7 @@ export function useAnalysis(analysisId: string): AnalysisState {
       cancelled = true;
       window.clearTimeout(timer);
     };
-  }, [analysisId]);
+  }, [analysisId, saved]);
 
   return {
     analysis,

@@ -6,7 +6,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import type { Favourite } from "../../api/favouritesApi.js";
-import { formatSavedDate } from "../../lib/format.js";
+import { formatNok, formatNumber, formatSavedDate } from "../../lib/format.js";
 import { totalFromScores } from "../../lib/score.js";
 import { cx } from "../../lib/cx.js";
 import { AppLink } from "../ui/AppLink.js";
@@ -18,10 +18,26 @@ type FavouriteCardProps = {
   onRemove: () => void;
 };
 
+function splitAddress(address: string | null): [string | null, string | null] {
+  if (!address) return [null, null];
+  const comma = address.lastIndexOf(",");
+  return comma === -1
+    ? [address, null]
+    : [address.slice(0, comma).trim(), address.slice(comma + 1).trim()];
+}
+
 export function FavouriteCard({ favourite, onRemove }: FavouriteCardProps) {
-  const { scores } = favourite;
+  const { scores, askingPrice, usableArea } = favourite;
   const total = totalFromScores(scores);
-  const title = favourite.address ?? "Address not available";
+  const [street, postalArea] = splitAddress(favourite.address);
+  const title = street ?? "Address not available";
+  const meta = [
+    postalArea,
+    askingPrice != null && formatNok(askingPrice),
+    usableArea != null && `${formatNumber(usableArea)} m²`,
+  ]
+    .filter(Boolean)
+    .join(" · ");
   const titleId = `favourite-${favourite.analysisId}`;
 
   return (
@@ -38,15 +54,18 @@ export function FavouriteCard({ favourite, onRemove }: FavouriteCardProps) {
           type="button"
           className={styles.heart}
           onClick={onRemove}
-          aria-label={`Remove ${title} from favourites`}
+          aria-label={`Remove ${favourite.address ?? title} from favourites`}
         >
           <Heart size={20} fill="currentColor" aria-hidden />
         </button>
       </div>
 
-      <h2 id={titleId} className={styles.address}>
-        {title}
-      </h2>
+      <div>
+        <h2 id={titleId} className={styles.address}>
+          {title}
+        </h2>
+        {meta && <div className={styles.meta}>{meta}</div>}
+      </div>
 
       {favourite.available ? (
         <div className={styles.chips}>
@@ -72,7 +91,7 @@ export function FavouriteCard({ favourite, onRemove }: FavouriteCardProps) {
 
       <div className={styles.foot}>
         <AppLink
-          to={`/analysis/${encodeURIComponent(favourite.analysisId)}`}
+          to={`/analysis/${encodeURIComponent(favourite.analysisId)}?saved`}
           className={cx(ui.btn, ui.primary)}
         >
           Open report

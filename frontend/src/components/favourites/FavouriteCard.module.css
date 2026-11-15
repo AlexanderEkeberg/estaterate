@@ -64,6 +64,12 @@
   font-weight: 700;
 }
 
+.meta {
+  margin-top: 2px;
+  font-size: 14px;
+  color: var(--er-muted);
+}
+
 .chips {
   display: flex;
   flex-wrap: wrap;

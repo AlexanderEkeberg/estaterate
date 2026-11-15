@@ -154,6 +154,13 @@ export function toPropertyReport(
     crime: toCategory<CrimeData>(categories.CRIME, timedOut, parseScore),
     schools: toCategory<SchoolData>(categories.SCHOOL, timedOut, parseScore),
   };
+  const property = categories.PROPERTY;
+  if (property?.status === "SUCCESS" && isObject(property.data)) {
+    const { address, askingPrice, usableArea } = property.data;
+    if (isText(address)) report.address = address;
+    if (isNumber(askingPrice)) report.askingPriceNok = askingPrice;
+    if (isNumber(usableArea)) report.sizeM2 = usableArea;
+  }
   if (report.usedSavedData && isText(scrapeResult?.message)) {
     report.notice = scrapeResult.message;
   }
