@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import no.school.client.NsrClient;
 import no.school.dto.SchoolData;
 import no.school.events.PropertySubmittedEvent;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,7 +51,7 @@ public class SchoolServiceImpl implements SchoolService {
                 }
             }
 
-            int score = minDistance <= 5.0 ? 100 : minDistance <= 10.0 ? 50 : 0;
+            int score = scoreFor(minDistance);
             double rounded = Math.round(minDistance * 100.0) / 100.0;
 
             return ScoreEvent.success(analysisId, CATEGORY, score,
@@ -102,6 +103,10 @@ public class SchoolServiceImpl implements SchoolService {
         return result;
     }
 
+    static int scoreFor(double distanceKm) {
+        int steps = (int) Math.ceil(Math.max(distanceKm, 0.25) / 0.25) - 1;
+        return Math.max(0, 100 - 10 * steps);
+    }
 
     private double distanceKm(double lat1, double lon1, double lat2, double lon2) {
         double x = Math.toRadians(lon2 - lon1) * Math.cos(Math.toRadians((lat1 + lat2) / 2));
