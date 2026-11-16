@@ -145,11 +145,11 @@ function parseSchool(data: unknown, score: number | null): SchoolData | null {
     const base = parseScore(data, score);
     if (!base) return null;
     const d = isObject(data) ? data : {};
-    return {
-        ...base,
-        nearestSchool: isText(d.nearestSchool) ? d.nearestSchool : undefined,
-        distanceKm: isNumber(d.distanceKm) ? d.distanceKm : undefined,
-    };
+    const school: SchoolData = { score: base.score };
+    if (isText(d.nearestSchool)) school.nearestSchool = d.nearestSchool;
+    if (isNumber(d.distanceKm)) school.distanceKm = d.distanceKm;
+    return school;
+
 }
 
 export function toPropertyReport(
