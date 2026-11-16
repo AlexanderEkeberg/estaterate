@@ -10,7 +10,7 @@
         <destination>${LOGSTASH_DESTINATION}</destination>
         <encoder class="net.logstash.logback.encoder.LogstashEncoder">
             <includeContext>false</includeContext>
-            <customFields>{"service":"${SERVICE_NAME}","instance_id":"${HOSTNAME}"}</customFields>
+            <customFields>{"service":{"name":"${SERVICE_NAME}"},"instance_id":"${HOSTNAME}"}</customFields>
         </encoder>
     </appender>
 
