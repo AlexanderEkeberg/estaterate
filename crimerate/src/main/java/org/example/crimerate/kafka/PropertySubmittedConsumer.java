@@ -21,11 +21,10 @@ public class PropertySubmittedConsumer {
     )
     public void receive(PropertySubmittedEvent event) {
         log.atInfo()
-                .setMessage("Received property event")
                 .addKeyValue("event_type", "property_received")
                 .addKeyValue("analysis_id", event.analysisId())
                 .addKeyValue("district", event.district())
-                .log();
+                .log("Received property event");
         publisher.publish(crimeStatsService.calculate(event));
     }
 }
