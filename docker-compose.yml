@@ -12,6 +12,7 @@ services:
     depends_on:
       - consul
       - kafka
+      - consul-importer
     networks:
       - estaterate
 
@@ -28,6 +29,7 @@ services:
     depends_on:
       - property
       - consul
+      - consul-importer
       - kafka
     networks:
       - estaterate
@@ -45,6 +47,7 @@ services:
     depends_on:
       - property
       - consul
+      - consul-importer
       - kafka
     networks:
       - estaterate
@@ -61,6 +64,7 @@ services:
       SPRING_CLOUD_CONSUL_HOST: "consul"
     depends_on:
       - consul
+      - consul-importer
       - property
       - aggregator
       - favourites
@@ -91,6 +95,8 @@ services:
       condition: service_started
      consul:
       condition: service_started
+     consul-importer:
+      condition: service_completed_successfully
      kafka:
       condition: service_started
     networks:
@@ -130,6 +136,8 @@ services:
         condition: service_started
       keycloak:
         condition: service_started
+      consul-importer:
+        condition: service_completed_successfully
       aggregator:
         condition: service_started
     networks:
@@ -167,7 +175,8 @@ services:
     image: consul-importer
     build: ./consul
     depends_on:
-      - consul
+      consul:
+        condition: service_started
     networks:
       - estaterate
 
@@ -254,6 +263,7 @@ services:
       - property
       - consul
       - kafka
+      - consul-importer
     networks:
       - estaterate
 
