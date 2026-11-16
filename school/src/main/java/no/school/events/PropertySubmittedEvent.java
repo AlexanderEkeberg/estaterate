@@ -14,6 +14,7 @@ public record PropertySubmittedEvent(
         Double latitude,
         Double longitude,
         String municipalityNumber,
-        String district
+        String district,
+        String coordinatesSource
 ) {
 }
