@@ -3,6 +3,7 @@ import { useAuth } from "../auth/AuthProvider.js";
 import { useFavourites } from "../hooks/useFavourites.js";
 import { Navbar } from "../components/layout/Navbar.js";
 import { FavouriteCard } from "../components/favourites/FavouriteCard.js";
+import { CompareTray } from "../components/compare/CompareTray.js";
 import { navigate } from "../main/router.js";
 import { cx } from "../lib/cx.js";
 import ui from "../style/ui.module.css";
@@ -108,6 +109,7 @@ export function FavouritesPage() {
         <h1 className={ui.h1}>My favourites</h1>
         <Content />
       </main>
+      <CompareTray />
     </div>
   );
 }
