@@ -73,7 +73,11 @@ public class OsloStatbankClient {
         try {
             response = HttpRetry.call(() -> restTemplate.postForObject(url, query, StatbankResponseDTO.class));
         } catch (RestClientException e) {
-            log.warn("Could not contact statbank: {}", e.getMessage());
+            log.atWarn()
+                    .addKeyValue("event_type", "statbank_unavailable")
+                    .addKeyValue("url", url)
+                    .addKeyValue("reason", e.getMessage())
+                    .log("Could not contact statbank");
             throw new StatbankException("Could not contact statbank", e);
         }
         if (response == null || response.data() == null || response.data().isEmpty()) {
