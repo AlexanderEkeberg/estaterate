@@ -44,18 +44,25 @@ public class CrimeStatsServiceImpl implements CrimeStatsService {
     public ScoreEvent calculate(PropertySubmittedEvent event) {
         String analysisId = event.analysisId();
         if (event.district() == null) {
-            log.warn("Property has no district: {}", analysisId);
+            log.atWarn()
+                    .addKeyValue("event_type", "district_missing")
+                    .addKeyValue("analysis_id", analysisId)
+                    .log("Property has no district");
             return ScoreEvent.failed(analysisId, CATEGORY, "Mangler bydel");
         }
         Optional<OsloBydel> bydel = OsloBydel.fromFinnDistrict(event.district());
         if (bydel.isEmpty()) {
-            log.warn("Unknown bydel '{}' for {}", event.district(), analysisId);
+            log.atWarn()
+                    .addKeyValue("event_type", "district_unknown")
+                    .addKeyValue("analysis_id", analysisId)
+                    .addKeyValue("district", event.district())
+                    .log("Unknown district");
             return ScoreEvent.failed(analysisId, CATEGORY, "Ukjent bydel: " + event.district());
         }
 
         try {
             DataSource source = DataSource.LIVE;
-            List<CrimeAreaStats> stats = liveStats(OsloStatbankClient.LAST_YEAR);
+            List<CrimeAreaStats> stats = liveStats(analysisId, OsloStatbankClient.LAST_YEAR);
             if (stats == null) {
                 source = DataSource.MOCK;
                 stats = toStats(mock.year(), mock.crimeCounts(), mock.population());
@@ -69,12 +76,16 @@ public class CrimeStatsServiceImpl implements CrimeStatsService {
                     .orElseGet(() -> ScoreEvent.failed(analysisId, CATEGORY,
                             "Mangler tall for " + bydel.get().getDisplayName()));
         } catch (Exception e) {
-            log.error("Crimerate failed for {}", analysisId, e);
+            log.atError()
+                    .setCause(e)
+                    .addKeyValue("event_type", "crime_score_failed")
+                    .addKeyValue("analysis_id", analysisId)
+                    .log("Crime score calculation failed");
             return ScoreEvent.failed(analysisId, CATEGORY, e.getMessage());
         }
     }
 
-    private List<CrimeAreaStats> liveStats(int year) {
+    private List<CrimeAreaStats> liveStats(String analysisId, int year) {
         if (mockForce) {
             return null;
         }
@@ -84,7 +95,12 @@ public class CrimeStatsServiceImpl implements CrimeStatsService {
             if (!fallbackEnabled) {
                 throw e;
             }
-            log.warn("Using mock crime stats: {}", e.getMessage());
+            log.atWarn()
+                    .addKeyValue("event_type", "mock_fallback_used")
+                    .addKeyValue("analysis_id", analysisId)
+                    .addKeyValue("year", year)
+                    .addKeyValue("reason", e.getMessage())
+                    .log("Using mock crime stats");
             return null;
         }
     }
@@ -94,7 +110,10 @@ public class CrimeStatsServiceImpl implements CrimeStatsService {
         if (!stored.isEmpty()) {
             return sortByBydelCode(stored);
         }
-        log.info("Ingen lagrede tall for {}, henter fra statistikkbanken", year);
+        log.atInfo()
+                .addKeyValue("event_type", "stats_fetch_started")
+                .addKeyValue("year", year)
+                .log("No stored crime stats, fetching from statbank");
         return sortByBydelCode(crimeAreaStatsRepo.saveAll(buildStats(year)));
     }
 
@@ -114,7 +133,11 @@ public class CrimeStatsServiceImpl implements CrimeStatsService {
             Integer crimes = crimeCounts.get(bydel.getCode());
             Integer people = population.get(bydel.getCode());
             if (crimes == null || people == null || people == 0) {
-                log.warn("Mangler tall for {} i {}", bydel.getDisplayName(), year);
+                log.atWarn()
+                        .addKeyValue("event_type", "stats_missing")
+                        .addKeyValue("district", bydel.getDisplayName())
+                        .addKeyValue("year", year)
+                        .log("Missing crime stats for district");
                 continue;
             }
 
