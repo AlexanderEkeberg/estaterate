@@ -1,6 +1,8 @@
 package no.school.service;
 
-import no.school.dto.SchoolRatingDTO;
+import no.school.events.PropertySubmittedEvent;
+import no.school.events.ScoreEvent;
+
 public interface SchoolService {
-    SchoolRatingDTO getRating();
+    ScoreEvent calculate(PropertySubmittedEvent event);
 }

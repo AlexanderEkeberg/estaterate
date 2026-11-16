@@ -39,9 +39,11 @@ export type CrimeData = {
   score: number;
 };
 
-// TODO: add the school fields when school sends its ScoreEvent data
+
 export type SchoolData = {
   score: number;
+  nearestSchool?: string;
+  distanceKm?: number;
 };
 
 export type PropertyReport = {

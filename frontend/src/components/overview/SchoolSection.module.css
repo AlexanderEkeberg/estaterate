@@ -1,0 +1,56 @@
+.school {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.sectionTitle {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+
+.sectionSub {
+    margin: 2px 0 0;
+    font-size: 14px;
+    color: var(--er-muted);
+}
+
+.schoolCards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.schoolCard {
+    flex: 1 1 200px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 14px 16px;
+    border-radius: var(--er-radius-sm);
+    border: 1.5px solid var(--er-border);
+    background: #fff;
+}
+
+.schoolCardLabel {
+    font-size: 13px;
+    color: var(--er-muted);
+}
+
+.schoolCardValue {
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.sources {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    padding-top: 16px;
+    border-top: 1px solid var(--er-border);
+    font-size: 13px;
+    color: var(--er-muted);
+}

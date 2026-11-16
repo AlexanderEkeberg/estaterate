@@ -20,7 +20,11 @@ public class PropertySubmittedConsumer {
             groupId = "crimerate-service"
     )
     public void receive(PropertySubmittedEvent event) {
-        log.info("Received property event: {}", event);
+        log.atInfo()
+                .addKeyValue("event_type", "property_received")
+                .addKeyValue("analysis_id", event.analysisId())
+                .addKeyValue("district", event.district())
+                .log("Received property event");
         publisher.publish(crimeStatsService.calculate(event));
     }
 }

@@ -141,6 +141,17 @@ function parseScore(data: unknown, score: number | null) {
   return isNumber(value) ? { score: toScore(value) } : null;
 }
 
+function parseSchool(data: unknown, score: number | null): SchoolData | null {
+    const base = parseScore(data, score);
+    if (!base) return null;
+    const d = isObject(data) ? data : {};
+    return {
+        ...base,
+        nearestSchool: isText(d.nearestSchool) ? d.nearestSchool : undefined,
+        distanceKm: isNumber(d.distanceKm) ? d.distanceKm : undefined,
+    };
+}
+
 export function toPropertyReport(
   analysis: Analysis,
   scrapeResult: ScrapeResult | null,
@@ -152,7 +163,7 @@ export function toPropertyReport(
     usedSavedData: scrapeResult?.coordinatesSource === "MOCK",
     weather: toCategory(categories.WEATHER, timedOut, parseWeather),
     crime: toCategory<CrimeData>(categories.CRIME, timedOut, parseScore),
-    schools: toCategory<SchoolData>(categories.SCHOOL, timedOut, parseScore),
+    schools: toCategory<SchoolData>(categories.SCHOOL, timedOut, parseSchool),
   };
   const property = categories.PROPERTY;
   if (property?.status === "SUCCESS" && isObject(property.data)) {
