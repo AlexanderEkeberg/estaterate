@@ -28,7 +28,7 @@ public class NsrClient {
         try {
             return HttpRetry.call(() -> restTemplate.getForObject(url, NsrUnitResponseDTO.class));
         } catch (Exception e) {
-            log.error("kunne ikke nå nsr-api", e);
+            log.error("Could not reach the NSR API", e);
             return null;
         }
     }
@@ -38,7 +38,7 @@ public class NsrClient {
         try {
             return HttpRetry.call(() -> restTemplate.getForObject(url, NsrUnitDTO.class));
         } catch (Exception e) {
-            log.error("kunne ikke nå nsr-api", e);
+            log.error("Could not reach the NSR API", e);
             return null;
         }
     }
