@@ -27,12 +27,14 @@ export function categoryInfo(category: string): CategoryInfo {
   );
 }
 
-export function sortCategories(categories: string[]): string[] {
+const HIDDEN_CATEGORIES = ["PROPERTY"];
+
+export function progressCategories(categories: string[]): string[] {
   const rank = (category: string) => {
     const index = DEFAULT_CATEGORIES.indexOf(category);
     return index === -1 ? DEFAULT_CATEGORIES.length : index;
   };
-  return [...categories].sort(
-    (a, b) => rank(a) - rank(b) || a.localeCompare(b),
-  );
+  return categories
+    .filter((category) => !HIDDEN_CATEGORIES.includes(category))
+    .sort((a, b) => rank(a) - rank(b) || a.localeCompare(b));
 }

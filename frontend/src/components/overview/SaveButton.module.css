@@ -1,0 +1,25 @@
+.save {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.error {
+  margin: 0;
+  max-width: 260px;
+  font-size: 13px;
+  color: var(--er-danger);
+  text-align: right;
+}
+
+@media (max-width: 640px) {
+  .save {
+    align-items: stretch;
+  }
+
+  .error {
+    max-width: none;
+    text-align: left;
+  }
+}

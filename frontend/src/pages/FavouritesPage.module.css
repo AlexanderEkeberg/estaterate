@@ -1,0 +1,61 @@
+.page {
+  width: 100%;
+  min-height: 100vh;
+  background-color: var(--er-bg);
+  color: var(--er-navy);
+}
+
+.count {
+  margin: -16px 0 0;
+  font-size: 15px;
+  color: var(--er-muted);
+}
+
+.error {
+  margin: 0;
+  font-size: 14px;
+  color: var(--er-danger);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 20px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.message {
+  padding: 56px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 16px;
+}
+
+.messageIcon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--er-blue-soft);
+  color: var(--er-blue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.messageTitle {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.messageText {
+  margin: 0;
+  max-width: 360px;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--er-muted);
+}

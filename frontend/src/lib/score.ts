@@ -23,8 +23,19 @@ export function computeTotalScore(
     }
   }
 
-  const total = scores.length
+  return { total: average(scores), used: scores.length, pending };
+}
+
+export function totalFromScores(scores: Record<string, number>): number | null {
+  return average(
+    [scores["CRIME"], scores["SCHOOL"]].filter(
+      (score): score is number => score != null,
+    ),
+  );
+}
+
+function average(scores: number[]): number | null {
+  return scores.length
     ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)
     : null;
-  return { total, used: scores.length, pending };
 }

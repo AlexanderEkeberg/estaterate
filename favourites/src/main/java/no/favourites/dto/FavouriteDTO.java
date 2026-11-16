@@ -12,15 +12,18 @@ public record FavouriteDTO(
         boolean available,
         String status,
         Map<String, Integer> scores,
-        String address
+        String address,
+        Long askingPrice,
+        Integer usableArea
 ) {
 
     public static FavouriteDTO from(Favourite favourite, AnalysisSummary summary) {
         String analysisId = favourite.getAnalysisId().toString();
         if (summary == null) {
-            return new FavouriteDTO(analysisId, favourite.getCreatedAt(), false, null, Map.of(), null);
+            return new FavouriteDTO(analysisId, favourite.getCreatedAt(), false, null, Map.of(), null, null, null);
         }
         return new FavouriteDTO(analysisId, favourite.getCreatedAt(), true,
-                summary.status(), summary.scores(), summary.address());
+                summary.status(), summary.scores(), summary.address(),
+                summary.askingPrice(), summary.usableArea());
     }
 }

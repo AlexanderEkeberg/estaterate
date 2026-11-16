@@ -41,16 +41,21 @@ class AggregatorClientTest {
     @Test
     void readsStatusScoresAndAddressFromTheAnalysis() {
         server.expect(requestTo(URL)).andRespond(withSuccess("""
-                {"analysisId": "%s", "status": "DONE",
-                 "property": {"address": "Niels Juels gate 7, 0272 Oslo", "askingPrice": 17800000},
-                 %s}
-                """.formatted(ID, CATEGORIES), MediaType.APPLICATION_JSON));
+                {"analysisId": "%s", "status": "DONE", "categories": {
+                  "WEATHER": {"status": "SUCCESS", "score": 72, "data": {"forecast": []}, "error": null},
+                  "SCHOOL": {"status": "PENDING", "score": null, "data": null, "error": null},
+                  "PROPERTY": {"status": "SUCCESS", "score": null, "error": null,
+                    "data": {"address": "Niels Juels gate 7, 0272 Oslo", "askingPrice": 17800000, "usableArea": 179}}
+                }}
+                """.formatted(ID), MediaType.APPLICATION_JSON));
 
         AnalysisSummary summary = client.getAnalysis(ID).orElseThrow();
 
         assertThat(summary.status()).isEqualTo("DONE");
         assertThat(summary.scores()).containsEntry("WEATHER", 72).containsEntry("SCHOOL", null);
         assertThat(summary.address()).isEqualTo("Niels Juels gate 7, 0272 Oslo");
+        assertThat(summary.askingPrice()).isEqualTo(17_800_000L);
+        assertThat(summary.usableArea()).isEqualTo(179);
         server.verify();
     }
 
@@ -64,15 +69,22 @@ class AggregatorClientTest {
 
         assertThat(summary.status()).isEqualTo("RUNNING");
         assertThat(summary.address()).isNull();
+        assertThat(summary.askingPrice()).isNull();
     }
 
     @Test
-    void unknownAnalysisIsEmptyButServerErrorMeansUnavailable() {
+    void unknownAnalysisIsEmptyButFailuresMeanUnavailable() {
         server.expect(requestTo(URL)).andRespond(withStatus(HttpStatus.NOT_FOUND));
         assertThat(client.getAnalysis(ID)).isEmpty();
 
         server.reset();
         server.expect(requestTo(URL)).andRespond(withServerError());
+        assertThatThrownBy(() -> client.getAnalysis(ID)).isInstanceOf(AggregatorUnavailableException.class);
+
+        server.reset();
+        server.expect(requestTo(URL)).andRespond(request -> {
+            throw new IllegalStateException("No instances available for aggregator");
+        });
         assertThatThrownBy(() -> client.getAnalysis(ID)).isInstanceOf(AggregatorUnavailableException.class);
     }
 }

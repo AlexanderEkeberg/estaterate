@@ -46,8 +46,9 @@ class FavouriteApiTest {
     private AggregatorClient aggregatorClient;
 
     private static final AnalysisSummary DONE = new AnalysisSummary("DONE",
-            Map.of("WEATHER", new AnalysisSummary.Category(72)),
-            new AnalysisSummary.Property("Niels Juels gate 7, 0272 Oslo"));
+            Map.of("WEATHER", new AnalysisSummary.Category(72, null),
+                    "PROPERTY", new AnalysisSummary.Category(null, Map.of("address", "Niels Juels gate 7, 0272 Oslo",
+                            "askingPrice", 17800000, "usableArea", 179))));
 
     @BeforeEach
     void clean() {
@@ -89,7 +90,9 @@ class FavouriteApiTest {
                 .andExpect(jsonPath("$[0].savedAt").exists())
                 .andExpect(jsonPath("$[0].available").value(true))
                 .andExpect(jsonPath("$[0].scores.WEATHER").value(72))
-                .andExpect(jsonPath("$[0].address").value("Niels Juels gate 7, 0272 Oslo"));
+                .andExpect(jsonPath("$[0].address").value("Niels Juels gate 7, 0272 Oslo"))
+                .andExpect(jsonPath("$[0].askingPrice").value(17800000))
+                .andExpect(jsonPath("$[0].usableArea").value(179));
 
         mvc.perform(delete("/api/favourites/" + FIRST).with(user("alice")))
                 .andExpect(status().isNoContent());

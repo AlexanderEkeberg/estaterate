@@ -29,7 +29,7 @@ public class AggregatorClient {
                     baseUrl + "/api/analysis/{id}", AnalysisSummary.class, analysisId));
         } catch (HttpClientErrorException.NotFound e) {
             return Optional.empty();
-        } catch (RestClientException e) {
+        } catch (RestClientException | IllegalStateException e) {
             log.warn("Could not contact aggregator for {}: {}", analysisId, e.getMessage());
             throw new AggregatorUnavailableException(e);
         }
