@@ -13,16 +13,20 @@ class MockCrimeDataTest {
     private final MockCrimeData mock = new MockCrimeData();
 
     @Test
-    void isForTheLatestYear() {
-        assertThat(mock.year()).isEqualTo(OsloStatbankClient.LAST_YEAR);
+    void coversEveryYearFromFirstToLast() {
+        assertThat(mock.years()).containsExactly(2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024);
+        assertThat(mock.years().getFirst()).isEqualTo(OsloStatbankClient.FIRST_YEAR);
+        assertThat(mock.years().getLast()).isEqualTo(OsloStatbankClient.LAST_YEAR);
     }
 
     @Test
-    void hasCrimeCountsAndPopulationForEveryBydel() {
+    void hasCrimeCountsAndPopulationForEveryBydelEveryYear() {
         String[] codes = Arrays.stream(OsloBydel.values()).map(OsloBydel::getCode).toArray(String[]::new);
 
-        assertThat(mock.crimeCounts()).containsOnlyKeys(codes);
-        assertThat(mock.population()).containsOnlyKeys(codes);
-        assertThat(mock.population().values()).allMatch(people -> people > 0);
+        for (int year : mock.years()) {
+            assertThat(mock.crimeCounts(year)).containsOnlyKeys(codes);
+            assertThat(mock.population(year)).containsOnlyKeys(codes);
+            assertThat(mock.population(year).values()).allMatch(people -> people > 0);
+        }
     }
 }

@@ -3,6 +3,7 @@ package org.example.crimerate.kafka;
 import org.apache.kafka.common.KafkaException;
 import org.apache.kafka.common.header.internals.RecordHeaders;
 import org.example.crimerate.dto.CrimeData;
+import org.example.crimerate.dto.CrimeYear;
 import org.example.crimerate.dto.DataSource;
 import org.example.crimerate.events.ScoreEvent;
 import org.junit.jupiter.api.Test;
@@ -10,6 +11,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.serializer.JacksonJsonSerializer;
 
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
@@ -45,7 +47,8 @@ class ScoreEventPublisherTest {
 
     @Test
     void serializesToJsonWithoutTypeHeader() {
-        CrimeData data = new CrimeData(DataSource.LIVE, "Sagene", 2024, 3906, 47627, 82.0, 59.0);
+        CrimeData data = new CrimeData(DataSource.LIVE, "Sagene", 2024, 3906, 47627, 82.0, 59.0,
+                List.of(new CrimeYear(2024, 3906, 47627, 82.0, 85.6, 6, 15)));
         ScoreEvent event = ScoreEvent.success("a1", "CRIME", 59, data);
 
         JacksonJsonSerializer<ScoreEvent> serializer = new JacksonJsonSerializer<>();
@@ -55,6 +58,7 @@ class ScoreEventPublisherTest {
 
         assertThat(headers.lastHeader("__TypeId__")).isNull();
         assertThat(json).contains("\"analysisId\":\"a1\"", "\"category\":\"CRIME\"",
-                "\"status\":\"SUCCESS\"", "\"score\":59", "\"bydel\":\"Sagene\"", "\"source\":\"LIVE\"");
+                "\"status\":\"SUCCESS\"", "\"score\":59", "\"bydel\":\"Sagene\"", "\"source\":\"LIVE\"",
+                "\"history\":[{\"year\":2024", "\"osloRatePer1000\":85.6", "\"rank\":6", "\"districtCount\":15");
     }
 }
