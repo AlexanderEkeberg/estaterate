@@ -30,7 +30,11 @@ public class AggregatorClient {
         } catch (HttpClientErrorException.NotFound e) {
             return Optional.empty();
         } catch (RestClientException | IllegalStateException e) {
-            log.warn("Could not contact aggregator for {}: {}", analysisId, e.getMessage());
+            log.atWarn()
+                    .addKeyValue("event_type", "aggregator_unavailable")
+                    .addKeyValue("analysis_id", analysisId.toString())
+                    .addKeyValue("reason", e.getMessage())
+                    .log("Could not contact aggregator");
             throw new AggregatorUnavailableException(e);
         }
     }
