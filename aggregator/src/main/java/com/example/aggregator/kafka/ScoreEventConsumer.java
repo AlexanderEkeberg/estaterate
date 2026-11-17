@@ -23,12 +23,19 @@ public class ScoreEventConsumer {
     )
     public void receive(ScoreEvent event) {
         if (event == null || event.analysisId() == null) {
-            log.warn("score-event missing analysisId");
+            log.atWarn()
+                    .addKeyValue("event_type", "event_missing_analysis_id")
+                    .addKeyValue("topic", "score-events")
+                    .log("Event is missing analysisId");
             return;
         }
 
-        log.info("Received score-event analysisId={}, category={}, status={}",
-                event.analysisId(), event.category(), event.status());
+        log.atInfo()
+                .addKeyValue("event_type", "score_received")
+                .addKeyValue("analysis_id", event.analysisId())
+                .addKeyValue("category", event.category())
+                .addKeyValue("status", event.status())
+                .log("Received score event");
 
         analysisService.processScoreEvent(event);
     }
