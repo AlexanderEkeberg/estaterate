@@ -102,6 +102,32 @@
   border-color: var(--er-blue);
 }
 
+.outlineBlue {
+  background: #fff;
+  color: var(--er-blue);
+  border-color: var(--er-blue);
+}
+
+.outlineBlue:hover {
+  background: var(--er-blue-soft);
+}
+
+.ghost {
+  background: transparent;
+  color: var(--er-navy);
+}
+
+.ghost:hover {
+  background: var(--er-bg);
+}
+
+.sm {
+  height: 40px;
+  padding: 0 14px;
+  font-size: 14px;
+  border-radius: 10px;
+}
+
 .btn:disabled {
   cursor: not-allowed;
   opacity: 0.6;

@@ -110,14 +110,42 @@
   color: var(--er-muted);
 }
 
+.inCompare {
+  outline: 2px solid var(--er-blue);
+  outline-offset: -2px;
+}
+
 .foot {
   margin-top: auto;
   display: flex;
-  justify-content: flex-end;
+  align-items: center;
+  justify-content: space-between;
   padding-top: 14px;
   border-top: 1px solid var(--er-border);
 }
 
 .foot a {
   text-decoration: none;
+}
+
+.check {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.check input {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: var(--er-blue);
+  cursor: inherit;
+}
+
+.checkDisabled {
+  color: var(--er-muted);
+  cursor: not-allowed;
 }

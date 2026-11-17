@@ -19,6 +19,7 @@ public class SecurityConfig {
                         .pathMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .pathMatchers("/api/properties/secured/**").authenticated()
                         .pathMatchers("/api/favourites/**").authenticated()
+                        .pathMatchers("/api/compare/**").authenticated()
                         .anyExchange().permitAll()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2

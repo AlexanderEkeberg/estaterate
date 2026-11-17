@@ -2,6 +2,7 @@ import { MapPin, TriangleAlert } from "lucide-react";
 import type { PropertyReport } from "../../types/report.js";
 import { formatNok, formatNumber } from "../../lib/format.js";
 import { SaveButton } from "./SaveButton.js";
+import { CompareButton } from "./CompareButton.js";
 import ui from "../../style/ui.module.css";
 import styles from "./OverviewHeader.module.css";
 
@@ -47,6 +48,7 @@ export function OverviewHeader({ report }: { report: PropertyReport }) {
 
         <div className={styles.actions}>
           <SaveButton analysisId={report.id} />
+          <CompareButton report={report} />
         </div>
       </div>
 
