@@ -6,10 +6,16 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import type { Favourite } from "../../api/favouritesApi.js";
-import { formatNok, formatNumber, formatSavedDate } from "../../lib/format.js";
+import {
+  formatNok,
+  formatNumber,
+  formatSavedDate,
+  splitAddress,
+} from "../../lib/format.js";
 import { totalFromScores } from "../../lib/score.js";
 import { cx } from "../../lib/cx.js";
 import { AppLink } from "../ui/AppLink.js";
+import { MAX_COMPARE, useCompare } from "../compare/CompareContext.js";
 import ui from "../../style/ui.module.css";
 import styles from "./FavouriteCard.module.css";
 
@@ -18,16 +24,11 @@ type FavouriteCardProps = {
   onRemove: () => void;
 };
 
-function splitAddress(address: string | null): [string | null, string | null] {
-  if (!address) return [null, null];
-  const comma = address.lastIndexOf(",");
-  return comma === -1
-    ? [address, null]
-    : [address.slice(0, comma).trim(), address.slice(comma + 1).trim()];
-}
-
 export function FavouriteCard({ favourite, onRemove }: FavouriteCardProps) {
-  const { scores, askingPrice, usableArea } = favourite;
+  const { scores, askingPrice, usableArea, analysisId } = favourite;
+  const compare = useCompare();
+  const inCompare = compare.isSelected(analysisId);
+  const compareDisabled = compare.isFull && !inCompare;
   const total = totalFromScores(scores);
   const [street, postalArea] = splitAddress(favourite.address);
   const title = street ?? "Address not available";
@@ -41,7 +42,10 @@ export function FavouriteCard({ favourite, onRemove }: FavouriteCardProps) {
   const titleId = `favourite-${favourite.analysisId}`;
 
   return (
-    <article className={cx(ui.card, styles.card)} aria-labelledby={titleId}>
+    <article
+      className={cx(ui.card, styles.card, inCompare && styles.inCompare)}
+      aria-labelledby={titleId}
+    >
       <div className={styles.top}>
         <div>
           <div className={styles.label}>Total score</div>
@@ -53,7 +57,10 @@ export function FavouriteCard({ favourite, onRemove }: FavouriteCardProps) {
         <button
           type="button"
           className={styles.heart}
-          onClick={onRemove}
+          onClick={() => {
+            compare.remove(analysisId);
+            onRemove();
+          }}
           aria-label={`Remove ${favourite.address ?? title} from favourites`}
         >
           <Heart size={20} fill="currentColor" aria-hidden />
@@ -90,6 +97,28 @@ export function FavouriteCard({ favourite, onRemove }: FavouriteCardProps) {
       </div>
 
       <div className={styles.foot}>
+        <label
+          className={cx(styles.check, compareDisabled && styles.checkDisabled)}
+          title={
+            compareDisabled
+              ? `You can compare up to ${MAX_COMPARE} properties`
+              : undefined
+          }
+        >
+          <input
+            type="checkbox"
+            checked={inCompare}
+            disabled={compareDisabled}
+            onChange={() =>
+              compare.toggle({
+                id: analysisId,
+                address: favourite.address,
+                totalScore: total,
+              })
+            }
+          />
+          Compare
+        </label>
         <AppLink
           to={`/analysis/${encodeURIComponent(favourite.analysisId)}?saved`}
           className={cx(ui.btn, ui.primary)}

@@ -141,6 +141,14 @@ function parseScore(data: unknown, score: number | null) {
   return isNumber(value) ? { score: toScore(value) } : null;
 }
 
+function parseCrime(data: unknown, score: number | null): CrimeData | null {
+  const crime: CrimeData | null = parseScore(data, score);
+  if (crime && isObject(data) && isNumber(data.ratePer1000)) {
+    crime.ratePer1000 = data.ratePer1000;
+  }
+  return crime;
+}
+
 function parseSchool(data: unknown, score: number | null): SchoolData | null {
     const base = parseScore(data, score);
     if (!base) return null;
@@ -148,8 +156,8 @@ function parseSchool(data: unknown, score: number | null): SchoolData | null {
     const school: SchoolData = { score: base.score };
     if (isText(d.nearestSchool)) school.nearestSchool = d.nearestSchool;
     if (isNumber(d.distanceKm)) school.distanceKm = d.distanceKm;
+    if (d.dataSource === "LIVE" || d.dataSource === "MOCK") school.dataSource = d.dataSource;
     return school;
-
 }
 
 export function toPropertyReport(
@@ -162,7 +170,7 @@ export function toPropertyReport(
     id: analysis.analysisId,
     usedSavedData: scrapeResult?.coordinatesSource === "MOCK",
     weather: toCategory(categories.WEATHER, timedOut, parseWeather),
-    crime: toCategory<CrimeData>(categories.CRIME, timedOut, parseScore),
+    crime: toCategory(categories.CRIME, timedOut, parseCrime),
     schools: toCategory<SchoolData>(categories.SCHOOL, timedOut, parseSchool),
   };
   const property = categories.PROPERTY;

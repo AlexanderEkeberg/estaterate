@@ -52,7 +52,11 @@ public class YrClient {
             body = HttpRetry.call(() ->
                     restTemplate.exchange(url, HttpMethod.GET, request, YrResponse.class).getBody());
         } catch (RestClientException e) {
-            log.warn("Could not contact Yr API: {}", e.getMessage());
+            log.atWarn()
+                    .addKeyValue("event_type", "yr_unavailable")
+                    .addKeyValue("url", url)
+                    .addKeyValue("reason", e.getMessage())
+                    .log("Could not contact Yr API");
             throw new WeatherApiException("Could not contact Yr API", e);
         }
         validate(body);

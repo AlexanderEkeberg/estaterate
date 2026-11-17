@@ -28,7 +28,11 @@ public class NsrClient {
         try {
             return HttpRetry.call(() -> restTemplate.getForObject(url, NsrUnitResponseDTO.class));
         } catch (Exception e) {
-            log.error("kunne ikke nå nsr-api", e);
+            log.atWarn()
+                    .setCause(e)
+                    .addKeyValue("event_type", "nsr_unavailable")
+                    .addKeyValue("url", url)
+                    .log("Could not reach the NSR API");
             return null;
         }
     }
@@ -38,7 +42,11 @@ public class NsrClient {
         try {
             return HttpRetry.call(() -> restTemplate.getForObject(url, NsrUnitDTO.class));
         } catch (Exception e) {
-            log.error("kunne ikke nå nsr-api", e);
+            log.atWarn()
+                    .addKeyValue("event_type", "nsr_unavailable")
+                    .addKeyValue("url", url)
+                    .addKeyValue("reason", e.getMessage())
+                    .log("Could not reach the NSR API");
             return null;
         }
     }

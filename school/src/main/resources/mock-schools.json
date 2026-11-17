@@ -1,0 +1,8 @@
+{
+  "schools": [
+    { "name": "Lakkegata skole", "latitude": 59.91995, "longitude": 10.76764 },
+    { "name": "Sofienberg skole", "latitude": 59.92199, "longitude": 10.7702 },
+    { "name": "Grünerløkka skole", "latitude": 59.92639, "longitude": 10.76166 },
+    { "name": "Lycee Francais Rene Cassin Doslo", "latitude": 59.91702, "longitude": 10.71729 }
+  ]
+}

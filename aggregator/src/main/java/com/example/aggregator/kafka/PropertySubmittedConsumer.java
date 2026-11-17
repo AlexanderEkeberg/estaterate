@@ -27,11 +27,18 @@ public class PropertySubmittedConsumer {
     )
     public void receive(PropertySubmittedEvent event) {
         if (event == null || event.analysisId() == null) {
-            log.warn("property-submitted missing analysisId");
+            log.atWarn()
+                    .addKeyValue("event_type", "event_missing_analysis_id")
+                    .addKeyValue("topic", "property-submitted")
+                    .log("Event is missing analysisId");
             return;
         }
 
-        log.info("Received property-submitted for analysisId={}", event.analysisId());
+        log.atInfo()
+                .addKeyValue("event_type", "property_received")
+                .addKeyValue("analysis_id", event.analysisId())
+                .addKeyValue("url", event.url())
+                .log("Received property event");
         analysisService.processPropertySubmitted(event.analysisId(), event.url());
     }
 

@@ -5,6 +5,7 @@ import { OverviewHeader } from "../components/overview/OverviewHeader.js";
 import { ScoreSummary } from "../components/overview/ScoreSummary.js";
 import { WeatherSection } from "../components/overview/WeatherSection.js";
 import { SchoolSection } from "../components/overview/SchoolSection.js";
+import { CompareTray } from "../components/compare/CompareTray.js";
 import { navigate } from "../main/router.js";
 import { cx } from "../lib/cx.js";
 import ui from "../style/ui.module.css";
@@ -31,6 +32,7 @@ export function OverviewPage({ report }: { report: PropertyReport }) {
           </button>
         </div>
       </main>
+      <CompareTray />
     </div>
   );
 }

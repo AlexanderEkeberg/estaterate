@@ -1,0 +1,135 @@
+.page {
+  width: 100%;
+  min-height: 100vh;
+  background-color: var(--er-bg);
+  color: var(--er-navy);
+}
+
+.back {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: -12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--er-blue);
+  text-decoration: none;
+}
+
+.tableCard {
+  padding: 8px 8px 16px;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 220px repeat(2, minmax(0, 1fr));
+}
+
+.dataRow {
+  border-top: 1px solid var(--er-border);
+}
+
+.labelCell {
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.headCell {
+  padding: 12px;
+}
+
+.colCard {
+  height: 100%;
+  box-sizing: border-box;
+  padding: 18px;
+  border: 1px solid var(--er-border);
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.address {
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.small {
+  margin: 0;
+  font-size: 13px;
+  color: var(--er-muted);
+}
+
+.facts {
+  font-size: 14px;
+  color: var(--er-muted-strong);
+}
+
+.total {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.totalValue {
+  font-size: 40px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.colActions {
+  display: flex;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 4px;
+}
+
+.colActions a {
+  text-decoration: none;
+}
+
+.emptyCol {
+  height: 100%;
+  min-height: 200px;
+  box-sizing: border-box;
+  border: 1.5px dashed var(--er-border-strong);
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: var(--er-blue);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.group {
+  padding: 22px 16px 8px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--er-muted);
+}
+
+.cell {
+  padding: 14px 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+}
+
+.value {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 18px;
+  font-weight: 700;
+}

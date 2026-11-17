@@ -1,8 +1,8 @@
-import { GraduationCap, Info } from "lucide-react";
-import type { CategoryResult, SchoolData } from "../../types/report.js";
-import { formatNumber } from "../../lib/format.js";
-import { cx } from "../../lib/cx.js";
-import { SectionPending, SectionUnavailable } from "./CategoryState.js";
+import {GraduationCap, Info} from "lucide-react";
+import type {CategoryResult, SchoolData} from "../../types/report.js";
+import {formatNumber} from "../../lib/format.js";
+import {cx} from "../../lib/cx.js";
+import {SectionPending, SectionUnavailable} from "./CategoryState.js";
 import ui from "../../style/ui.module.css";
 import styles from "./SchoolSection.module.css";
 
@@ -22,32 +22,37 @@ export function SchoolSection({
             aria-labelledby="school-title"
             className={cx(ui.card, styles.school)}
         >
-            <div className={styles.sectionTitle}>
-        <span className={cx(ui.iconTile, ui.schoolsTile)}>
-          <GraduationCap size={22} aria-hidden />
-        </span>
-                <div>
-                    <h2 id="school-title" className={ui.h2}>
-                        Schools
-                    </h2>
-                    <p className={styles.sectionSub}>
-                        Distance to the nearest primary school
-                    </p>
+            <div className={styles.sectionHead}>
+                <div className={styles.sectionTitle}>
+                    <span className={cx(ui.iconTile, ui.schoolsTile)}>
+                        <GraduationCap size={22} aria-hidden/>
+                    </span>
+                    <div>
+                        <h2 id="school-title" className={ui.h2}>
+                            Schools
+                        </h2>
+                        <p className={styles.sectionSub}>
+                            Distance to the nearest primary school
+                        </p>
+                    </div>
                 </div>
+                {data?.dataSource === "MOCK" && (
+                    <span className={ui.sampleTag}>Sample data</span>
+                )}
             </div>
 
-            {data && <SchoolContent data={data} />}
+            {data && <SchoolContent data={data}/>}
 
             {result.status === "UNAVAILABLE" && (
-                <SectionUnavailable message="We couldn't load school data for this location right now." />
+                <SectionUnavailable message="We couldn't load school data for this location right now."/>
             )}
-            {result.status === "PENDING" && <SectionPending lines={2} />}
+            {result.status === "PENDING" && <SectionPending lines={2}/>}
         </section>
     );
 }
 
-function SchoolContent({ data }: { data: SchoolData }) {
-    const { nearestSchool, distanceKm, score } = data;
+function SchoolContent({data}: { data: SchoolData }) {
+    const {nearestSchool, distanceKm, score} = data;
 
     return (
         <>
@@ -73,7 +78,7 @@ function SchoolContent({ data }: { data: SchoolData }) {
             )}
 
             <div className={styles.sources}>
-                <Info size={16} aria-hidden />
+                <Info size={16} aria-hidden/>
                 <span>Straight-line distance, Source: NSR (Utdanningsdirektoratet)</span>
             </div>
         </>

@@ -1,15 +1,17 @@
-import { Heart, LogOut, User } from "lucide-react";
+import { Heart, User } from "lucide-react";
 import { useAuth } from "../../auth/AuthProvider.js";
 import { AppLink } from "../ui/AppLink.js";
 import { Logo } from "../ui/Logo.js";
 import { Button } from "../ui/Button.js";
+import { AccountMenu } from "./AccountMenu.js";
+import { cx } from "../../lib/cx.js";
 import styles from "./Navbar.module.css";
 
-export function Navbar() {
+export function Navbar({ onHero = false }: { onHero?: boolean }) {
   const { status, username, login, logout } = useAuth();
 
   return (
-    <header className={styles.navbar}>
+    <header className={cx(styles.navbar, !onHero && styles.solid)}>
       <AppLink to="/" className={styles.home} aria-label="Estaterate home">
         <Logo />
       </AppLink>
@@ -26,16 +28,7 @@ export function Navbar() {
               <Heart size={16} aria-hidden />
               Favourites
             </AppLink>
-            {username && (
-              <span className={styles.user}>
-                <User size={16} aria-hidden />
-                {username}
-              </span>
-            )}
-            <Button variant="ghost" onClick={logout}>
-              <LogOut size={16} />
-              Log out
-            </Button>
+            <AccountMenu username={username ?? "Account"} onLogout={logout} />
           </>
         )}
       </div>

@@ -13,6 +13,7 @@
 }
 
 .actions {
+  position: relative;
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
@@ -34,13 +35,13 @@
   margin-top: 4px;
 }
 
-.schoolCards {
+.facts {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
 }
 
-.schoolCard {
+.fact {
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -52,7 +53,7 @@
   color: var(--er-muted);
 }
 
-.schoolCard strong {
+.fact strong {
   color: var(--er-navy);
   font-weight: 600;
 }

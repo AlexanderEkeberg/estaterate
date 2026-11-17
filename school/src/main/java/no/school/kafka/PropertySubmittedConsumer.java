@@ -22,7 +22,12 @@ public class PropertySubmittedConsumer {
             groupId = "school-service"
     )
     public void receive(PropertySubmittedEvent event) {
-        log.info("Received property event: {}", event);
+        log.atInfo()
+                .addKeyValue("event_type", "property_received")
+                .addKeyValue("analysis_id", event.analysisId())
+                .addKeyValue("latitude", event.latitude())
+                .addKeyValue("longitude", event.longitude())
+                .log("Received property event");
         publisher.publish(schoolService.calculate(event));
 
     }

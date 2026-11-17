@@ -77,7 +77,11 @@ public class HistoricalWeatherClient {
             body = HttpRetry.call(() ->
                     restTemplate.exchange(url, HttpMethod.GET, request, OpenMeteoResponse.class).getBody());
         } catch (RestClientException e) {
-            log.warn("Could not contact Open-Meteo API: {}", e.getMessage());
+            log.atWarn()
+                    .addKeyValue("event_type", "open_meteo_unavailable")
+                    .addKeyValue("url", url)
+                    .addKeyValue("reason", e.getMessage())
+                    .log("Could not contact Open-Meteo API");
             throw new WeatherApiException("Could not contact Open-Meteo API", e);
         }
         validate(body);
