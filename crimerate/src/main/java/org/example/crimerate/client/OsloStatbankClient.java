@@ -25,7 +25,7 @@ public class OsloStatbankClient {
     private static final Duration CONNECT_TIMEOUT = Duration.ofSeconds(3);
     private static final Duration READ_TIMEOUT = Duration.ofSeconds(10);
 
-    private static final int FIRST_YEAR = 2017;
+    public static final int FIRST_YEAR = 2017;
     public static final int LAST_YEAR = 2024;
 
     private static final List<String> BYDEL_CODES =
