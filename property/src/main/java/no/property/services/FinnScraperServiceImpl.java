@@ -97,7 +97,10 @@ public class FinnScraperServiceImpl implements FinnScraperService {
         }
         PropertyLocationDTO demo = mock.demoListing(uri).orElse(null);
         if (demo != null) {
-            log.info("Using saved demo listing: {}", uri);
+            log.atInfo()
+                    .addKeyValue("event_type", "demo_listing_used")
+                    .addKeyValue("url", uri.toString())
+                    .log("Using saved demo listing");
         }
         return demo;
     }
@@ -105,7 +108,11 @@ public class FinnScraperServiceImpl implements FinnScraperService {
     // gir null hvis mock skal brukes
     private PropertyLocationDTO scrapeOrNull(URI uri) {
         if (mockForced) {
-            log.info("Mock property forced, skipping FINN: {}", uri);
+            log.atWarn()
+                    .addKeyValue("event_type", "mock_fallback_used")
+                    .addKeyValue("url", uri.toString())
+                    .addKeyValue("reason", "Mock forced by config")
+                    .log("Using mock property");
             return null;
         }
         try {
@@ -119,7 +126,11 @@ public class FinnScraperServiceImpl implements FinnScraperService {
             if (!fallbackEnabled) {
                 throw e;
             }
-            log.warn("Using mock property: {}", e.getMessage());
+            log.atWarn()
+                    .addKeyValue("event_type", "mock_fallback_used")
+                    .addKeyValue("url", uri.toString())
+                    .addKeyValue("reason", e.getMessage())
+                    .log("Using mock property");
             return null;
         }
     }
