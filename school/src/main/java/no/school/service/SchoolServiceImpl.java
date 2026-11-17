@@ -37,7 +37,10 @@ public class SchoolServiceImpl implements SchoolService {
     public ScoreEvent calculate(PropertySubmittedEvent event) {
         String analysisId = event.analysisId();
         if (event.latitude() == null || event.longitude() == null) {
-            log.warn("Property has no coordinates: {}", analysisId);
+            log.atWarn()
+                    .addKeyValue("event_type", "coordinates_missing")
+                    .addKeyValue("analysis_id", analysisId)
+                    .log("Property has no coordinates");
             return ScoreEvent.failed(analysisId, CATEGORY, "Missing coordinates");
         }
         if (!OSLO.equals(event.municipalityNumber())) {
@@ -54,7 +57,11 @@ public class SchoolServiceImpl implements SchoolService {
                 if (!mockForced && !fallbackEnabled) {
                 return ScoreEvent.failed(analysisId, CATEGORY, "Could not fetch schools from NSR");
                 }
-                log.warn("Using mock schools for {}", analysisId);
+                log.atWarn()
+                        .addKeyValue("event_type", "mock_fallback_used")
+                        .addKeyValue("analysis_id", analysisId)
+                        .addKeyValue("reason", mockForced ? "Mock forced by config" : "No schools from NSR")
+                        .log("Using mock schools");
                 schools = mock.schools();
                 source = DataSource.MOCK;
             }
@@ -77,7 +84,11 @@ public class SchoolServiceImpl implements SchoolService {
             return ScoreEvent.success(analysisId, CATEGORY, score,
                     new SchoolData(nearest.getName(), rounded, source));
         } catch (Exception e) {
-            log.error("School failed for {}", analysisId, e);
+            log.atError()
+                    .setCause(e)
+                    .addKeyValue("event_type", "score_calculation_failed")
+                    .addKeyValue("analysis_id", analysisId)
+                    .log("School calculation failed");
             String message = e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName();
             return ScoreEvent.failed(analysisId, CATEGORY, message);
         }
@@ -91,7 +102,9 @@ public class SchoolServiceImpl implements SchoolService {
 
         NsrUnitResponseDTO response = nsrClient.getSchoolsByMunicipality(OSLO);
         if (response == null || response.getUnits() == null) {
-            log.warn("No response from NSR");
+            log.atWarn()
+                    .addKeyValue("event_type", "nsr_no_data")
+                    .log("No response from NSR");
             return List.of();
         }
 
@@ -103,14 +116,20 @@ public class SchoolServiceImpl implements SchoolService {
 
             NsrUnitDTO detail = nsrClient.getSchoolDetail(unit.getOrganizationNumber());
             if (detail == null || detail.getCoordinate() == null) {
-                log.warn("Missing coordinates for {}", unit.getName());
+                log.atWarn()
+                        .addKeyValue("event_type", "school_coordinates_missing")
+                        .addKeyValue("school", unit.getName())
+                        .log("School has no coordinates");
                 continue;
             }
 
             Double lat = detail.getCoordinate().getLatitude();
             Double lon = detail.getCoordinate().getLongitude();
             if (lat == null || lon == null || (lat == 0.0 && lon == 0.0)) {
-                log.warn("Invalid coordinates for {}", unit.getName());
+                log.atWarn()
+                        .addKeyValue("event_type", "school_coordinates_invalid")
+                        .addKeyValue("school", unit.getName())
+                        .log("School has invalid coordinates");
                 continue;
             }
 
