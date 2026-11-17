@@ -3,38 +3,13 @@ import { useAuth } from "../auth/AuthProvider.js";
 import { useFavourites } from "../hooks/useFavourites.js";
 import { Navbar } from "../components/layout/Navbar.js";
 import { FavouriteCard } from "../components/favourites/FavouriteCard.js";
+import { Message } from "../components/ui/Message.js";
 import { CompareTray } from "../components/compare/CompareTray.js";
 import { navigate } from "../main/router.js";
-import { cx } from "../lib/cx.js";
 import ui from "../style/ui.module.css";
 import styles from "./FavouritesPage.module.css";
 
-type MessageProps = {
-  title: string;
-  text: string;
-  action?: { label: string; onClick: () => void };
-};
-
-function Message({ title, text, action }: MessageProps) {
-  return (
-    <div className={cx(ui.card, styles.message)}>
-      <span className={styles.messageIcon}>
-        <Heart size={28} aria-hidden />
-      </span>
-      <h2 className={styles.messageTitle}>{title}</h2>
-      <p className={styles.messageText}>{text}</p>
-      {action && (
-        <button
-          type="button"
-          className={cx(ui.btn, ui.primary, ui.lg)}
-          onClick={action.onClick}
-        >
-          {action.label}
-        </button>
-      )}
-    </div>
-  );
-}
+const icon = <Heart size={28} aria-hidden />;
 
 function Content() {
   const { status, login } = useAuth();
@@ -48,6 +23,7 @@ function Content() {
   if (status === "unavailable") {
     return (
       <Message
+        icon={icon}
         title="Login is unavailable"
         text="We could not reach the login service. Try again later."
       />
@@ -56,6 +32,7 @@ function Content() {
   if (status === "anonymous") {
     return (
       <Message
+        icon={icon}
         title="Log in to see your favourites"
         text="Favourites are saved on your account."
         action={{ label: "Log in", onClick: login }}
@@ -63,11 +40,14 @@ function Content() {
     );
   }
   if (!favourites) {
-    return error ? <Message title="Something went wrong" text={error} /> : null;
+    return error ? (
+      <Message icon={icon} title="Something went wrong" text={error} />
+    ) : null;
   }
   if (favourites.length === 0) {
     return (
       <Message
+        icon={icon}
         title="No favourites yet"
         text="Analyze a property and press Save. It will show up here so you can come back to it."
         action={{ label: "Analyze a property", onClick: () => navigate("/") }}

@@ -12,6 +12,16 @@ export function formatNumber(value: number, decimals = 0): string {
 
 export const formatNok = (value: number) => `${formatNumber(value)}${NBSP}kr`;
 
+export function splitAddress(
+  address: string | null | undefined,
+): [string | null, string | null] {
+  if (!address) return [null, null];
+  const comma = address.lastIndexOf(",");
+  return comma === -1
+    ? [address, null]
+    : [address.slice(0, comma).trim(), address.slice(comma + 1).trim()];
+}
+
 export const formatTemp = (value: number) => `${formatNumber(value)}°`;
 
 const parseDate = (iso: string) => new Date(`${iso}T12:00:00`);

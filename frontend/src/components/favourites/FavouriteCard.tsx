@@ -6,7 +6,12 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import type { Favourite } from "../../api/favouritesApi.js";
-import { formatNok, formatNumber, formatSavedDate } from "../../lib/format.js";
+import {
+  formatNok,
+  formatNumber,
+  formatSavedDate,
+  splitAddress,
+} from "../../lib/format.js";
 import { totalFromScores } from "../../lib/score.js";
 import { cx } from "../../lib/cx.js";
 import { AppLink } from "../ui/AppLink.js";
@@ -18,14 +23,6 @@ type FavouriteCardProps = {
   favourite: Favourite;
   onRemove: () => void;
 };
-
-function splitAddress(address: string | null): [string | null, string | null] {
-  if (!address) return [null, null];
-  const comma = address.lastIndexOf(",");
-  return comma === -1
-    ? [address, null]
-    : [address.slice(0, comma).trim(), address.slice(comma + 1).trim()];
-}
 
 export function FavouriteCard({ favourite, onRemove }: FavouriteCardProps) {
   const { scores, askingPrice, usableArea, analysisId } = favourite;
