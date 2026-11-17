@@ -26,6 +26,8 @@ type CompareState = {
 const STORAGE_KEY = "estaterate.compare";
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
+export const isCompareId = (id: string) => UUID.test(id);
+
 function toItem(value: unknown): CompareItem | null {
   if (typeof value !== "object" || value === null) return null;
   const { id, address, totalScore } = value as Record<string, unknown>;

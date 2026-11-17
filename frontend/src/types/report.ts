@@ -37,8 +37,8 @@ export type WeatherData = {
 // TODO: add the crime fields when crimerate sends its ScoreEvent data
 export type CrimeData = {
   score: number;
+  ratePer1000?: number;
 };
-
 
 export type SchoolData = {
   score: number;
