@@ -1,0 +1,32 @@
+[
+  {
+    "key": "config/property/data",
+    "flags": 0,
+    "value": "cHJvcGVydHkubW9jay5mYWxsYmFjay1lbmFibGVkPXRydWUKcHJvcGVydHkubW9jay5mb3JjZT1mYWxzZQpzcHJpbmcuY2xvdWQuY29uc3VsLmRpc2NvdmVyeS5pbnN0YW5jZS1pZD0ke3NwcmluZy5hcHBsaWNhdGlvbi5uYW1lfS0ke3JhbmRvbS52YWx1ZX0="
+  },
+  {
+    "key": "config/crimerate/data",
+    "flags": 0,
+    "value": "Y3JpbWVyYXRlLm1vY2suZmFsbGJhY2stZW5hYmxlZD10cnVlCmNyaW1lcmF0ZS5tb2NrLmZvcmNlPWZhbHNlCnNwcmluZy5jbG91ZC5jb25zdWwuZGlzY292ZXJ5Lmluc3RhbmNlLWlkPSR7c3ByaW5nLmFwcGxpY2F0aW9uLm5hbWV9LSR7cmFuZG9tLnZhbHVlfQ=="
+  },
+  {
+    "key": "config/aggregator/data",
+    "flags": 0,
+    "value": "c3ByaW5nLmRhdGFzb3VyY2UudXJsPWpkYmM6cG9zdGdyZXNxbDovL2FnZ3JlZ2F0b3ItZGI6NTQzMi9hZ2dyZWdhdG9yCnNwcmluZy5kYXRhc291cmNlLnVzZXJuYW1lPXBvc3RncmVzCnNwcmluZy5kYXRhc291cmNlLnBhc3N3b3JkPXBvc3RncmVzCnNwcmluZy5jbG91ZC5jb25zdWwuZGlzY292ZXJ5Lmluc3RhbmNlLWlkPSR7c3ByaW5nLmFwcGxpY2F0aW9uLm5hbWV9LSR7cmFuZG9tLnZhbHVlfQ=="
+  },
+  {
+    "key": "config/favourites/data",
+    "flags": 0,
+    "value": "c3ByaW5nLmRhdGFzb3VyY2UudXJsPWpkYmM6cG9zdGdyZXNxbDovL2Zhdm91cml0ZXMtZGI6NTQzMi9mYXZvdXJpdGVzCnNwcmluZy5kYXRhc291cmNlLnVzZXJuYW1lPXBvc3RncmVzCnNwcmluZy5kYXRhc291cmNlLnBhc3N3b3JkPXBvc3RncmVzCnNwcmluZy5jbG91ZC5jb25zdWwuZGlzY292ZXJ5Lmluc3RhbmNlLWlkPSR7c3ByaW5nLmFwcGxpY2F0aW9uLm5hbWV9LSR7cmFuZG9tLnZhbHVlfQ=="
+  },
+  {
+    "key": "config/weather/data",
+    "flags": 0,
+    "value": "c3ByaW5nLmNsb3VkLmNvbnN1bC5kaXNjb3ZlcnkuaW5zdGFuY2UtaWQ9JHtzcHJpbmcuYXBwbGljYXRpb24ubmFtZX0tJHtyYW5kb20udmFsdWV9"
+  },
+  {
+    "key": "config/school/data",
+    "flags": 0,
+    "value": "c3ByaW5nLmNsb3VkLmNvbnN1bC5kaXNjb3ZlcnkuaW5zdGFuY2UtaWQ9JHtzcHJpbmcuYXBwbGljYXRpb24ubmFtZX0tJHtyYW5kb20udmFsdWV9"
+  }
+]

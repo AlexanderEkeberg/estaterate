@@ -7,9 +7,12 @@ services:
 #      - "8090:8090"
     environment:
       SPRING_PROFILES_ACTIVE: docker
+      SPRING_CONFIG_IMPORT: "optional:consul:"
+      SPRING_CLOUD_CONSUL_HOST: "consul"
     depends_on:
       - consul
       - kafka
+      - consul-importer
     networks:
       - estaterate
 
@@ -21,9 +24,12 @@ services:
 #      - "8082:8082"
     environment:
       SPRING_PROFILES_ACTIVE: docker
+      SPRING_CONFIG_IMPORT: "optional:consul:"
+      SPRING_CLOUD_CONSUL_HOST: "consul"
     depends_on:
       - property
       - consul
+      - consul-importer
       - kafka
     networks:
       - estaterate
@@ -36,9 +42,12 @@ services:
 #      - "8084:8084"
     environment:
       SPRING_PROFILES_ACTIVE: docker
+      SPRING_CONFIG_IMPORT: "optional:consul:"
+      SPRING_CLOUD_CONSUL_HOST: "consul"
     depends_on:
       - property
       - consul
+      - consul-importer
       - kafka
     networks:
       - estaterate
@@ -51,8 +60,11 @@ services:
       - "8080:8080"
     environment:
       SPRING_PROFILES_ACTIVE: docker
+      SPRING_CONFIG_IMPORT: "optional:consul:"
+      SPRING_CLOUD_CONSUL_HOST: "consul"
     depends_on:
       - consul
+      - consul-importer
       - property
       - aggregator
       - favourites
@@ -68,6 +80,8 @@ services:
 #      - "8085:8085"
     environment:
       SPRING_PROFILES_ACTIVE: docker
+      SPRING_CONFIG_IMPORT: "optional:consul:"
+      SPRING_CLOUD_CONSUL_HOST: "consul"
     depends_on:
      aggregator-db:
       condition: service_healthy
@@ -81,6 +95,8 @@ services:
       condition: service_started
      consul:
       condition: service_started
+     consul-importer:
+      condition: service_completed_successfully
      kafka:
       condition: service_started
     networks:
@@ -111,6 +127,8 @@ services:
       dockerfile: Dockerfile
     environment:
       SPRING_PROFILES_ACTIVE: docker
+      SPRING_CONFIG_IMPORT: "optional:consul:"
+      SPRING_CLOUD_CONSUL_HOST: "consul"
     depends_on:
       favourites-db:
         condition: service_healthy
@@ -118,6 +136,8 @@ services:
         condition: service_started
       keycloak:
         condition: service_started
+      consul-importer:
+        condition: service_completed_successfully
       aggregator:
         condition: service_started
     networks:
@@ -148,6 +168,15 @@ services:
     ports:
       - "8500:8500"
     command: agent -dev -node=consul -client=0.0.0.0
+    networks:
+      - estaterate
+
+  consul-importer:
+    image: consul-importer
+    build: ./consul
+    depends_on:
+      consul:
+        condition: service_started
     networks:
       - estaterate
 
@@ -228,10 +257,13 @@ services:
 #      - "8083:8083"
     environment:
       SPRING_PROFILES_ACTIVE: docker
+      SPRING_CONFIG_IMPORT: "optional:consul:"
+      SPRING_CLOUD_CONSUL_HOST: "consul"
     depends_on:
       - property
       - consul
       - kafka
+      - consul-importer
     networks:
       - estaterate
 
