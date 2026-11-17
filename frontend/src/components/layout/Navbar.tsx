@@ -4,13 +4,14 @@ import { AppLink } from "../ui/AppLink.js";
 import { Logo } from "../ui/Logo.js";
 import { Button } from "../ui/Button.js";
 import { AccountMenu } from "./AccountMenu.js";
+import { cx } from "../../lib/cx.js";
 import styles from "./Navbar.module.css";
 
-export function Navbar() {
+export function Navbar({ onHero = false }: { onHero?: boolean }) {
   const { status, username, login, logout } = useAuth();
 
   return (
-    <header className={styles.navbar}>
+    <header className={cx(styles.navbar, !onHero && styles.solid)}>
       <AppLink to="/" className={styles.home} aria-label="Estaterate home">
         <Logo />
       </AppLink>

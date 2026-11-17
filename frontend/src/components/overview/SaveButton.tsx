@@ -5,8 +5,13 @@ import { cx } from "../../lib/cx.js";
 import ui from "../../style/ui.module.css";
 import styles from "./SaveButton.module.css";
 
-export function SaveButton({ analysisId }: { analysisId: string }) {
-  const { status, login } = useAuth();
+type SaveButtonProps = {
+  analysisId: string;
+  onLoginRequired: () => void;
+};
+
+export function SaveButton({ analysisId, onLoginRequired }: SaveButtonProps) {
+  const { status } = useAuth();
   const { saved, busy, error, toggle } = useFavourite(
     analysisId,
     status === "authenticated",
@@ -14,9 +19,13 @@ export function SaveButton({ analysisId }: { analysisId: string }) {
 
   if (status === "anonymous") {
     return (
-      <button type="button" className={cx(ui.btn, ui.outline)} onClick={login}>
+      <button
+        type="button"
+        className={cx(ui.btn, ui.outline)}
+        onClick={onLoginRequired}
+      >
         <Heart size={18} aria-hidden />
-        Log in to save
+        Save
       </button>
     );
   }

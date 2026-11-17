@@ -5,6 +5,11 @@
   padding: 1.25rem 1.5rem;
 }
 
+.solid {
+  background: #fff;
+  border-bottom: 1px solid var(--er-border);
+}
+
 .actions {
   display: flex;
   align-items: center;

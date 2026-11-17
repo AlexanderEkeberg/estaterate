@@ -8,7 +8,7 @@ export function LandingPage() {
   return (
     <main className={styles.page}>
       <div className={styles.heroBackground}>
-        <Navbar />
+        <Navbar onHero />
         <Hero />
       </div>
       <HowItWorks />
