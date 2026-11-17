@@ -6,15 +6,24 @@ import { computeTotalScore } from "../../lib/score.js";
 import { cx } from "../../lib/cx.js";
 import ui from "../../style/ui.module.css";
 
-export function CompareButton({ report }: { report: PropertyReport }) {
-  const { status, login } = useAuth();
+type CompareButtonProps = {
+  report: PropertyReport;
+  onLoginRequired: () => void;
+};
+
+export function CompareButton({ report, onLoginRequired }: CompareButtonProps) {
+  const { status } = useAuth();
   const { isSelected, isFull, toggle } = useCompare();
 
   if (status === "anonymous") {
     return (
-      <button type="button" className={cx(ui.btn, ui.outline)} onClick={login}>
+      <button
+        type="button"
+        className={cx(ui.btn, ui.outline)}
+        onClick={onLoginRequired}
+      >
         <Columns2 size={18} aria-hidden />
-        Log in to compare
+        Compare
       </button>
     );
   }

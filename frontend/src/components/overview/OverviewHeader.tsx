@@ -1,13 +1,21 @@
+import { useState } from "react";
 import { MapPin, TriangleAlert } from "lucide-react";
 import type { PropertyReport } from "../../types/report.js";
 import { formatNok, formatNumber } from "../../lib/format.js";
 import { SaveButton } from "./SaveButton.js";
 import { CompareButton } from "./CompareButton.js";
+import { LoginPopover } from "./LoginPopover.js";
+import { useDismiss } from "../../hooks/useDismiss.js";
 import ui from "../../style/ui.module.css";
 import styles from "./OverviewHeader.module.css";
 
 export function OverviewHeader({ report }: { report: PropertyReport }) {
   const hasFacts = report.askingPriceNok != null || report.sizeM2 != null;
+  const [loginOpen, setLoginOpen] = useState(false);
+  const actionsRef = useDismiss<HTMLDivElement>(loginOpen, () =>
+    setLoginOpen(false),
+  );
+  const askLogin = () => setLoginOpen(true);
 
   return (
     <section aria-labelledby="overview-title" className={styles.header}>
@@ -46,9 +54,10 @@ export function OverviewHeader({ report }: { report: PropertyReport }) {
           )}
         </div>
 
-        <div className={styles.actions}>
-          <SaveButton analysisId={report.id} />
-          <CompareButton report={report} />
+        <div className={styles.actions} ref={actionsRef}>
+          <SaveButton analysisId={report.id} onLoginRequired={askLogin} />
+          <CompareButton report={report} onLoginRequired={askLogin} />
+          {loginOpen && <LoginPopover onClose={() => setLoginOpen(false)} />}
         </div>
       </div>
 

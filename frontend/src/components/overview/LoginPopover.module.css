@@ -1,0 +1,69 @@
+.popover {
+  position: absolute;
+  top: 56px;
+  right: 0;
+  z-index: 30;
+  width: 320px;
+  box-sizing: border-box;
+  padding: 20px;
+  background: #fff;
+  border: 1px solid var(--er-border);
+  border-radius: var(--er-radius);
+  box-shadow: var(--er-shadow-pop);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.icon {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--er-radius-sm);
+  background: var(--er-blue-soft);
+  color: var(--er-blue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.close {
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--er-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.close:hover {
+  background: var(--er-bg);
+  color: var(--er-navy);
+}
+
+.title {
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.text {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--er-muted);
+}
+
+.login {
+  align-self: flex-start;
+  margin-top: 4px;
+}
