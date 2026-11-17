@@ -58,6 +58,21 @@ For example do a GET request to [http://localhost:8080/api/properties](http://lo
 Gateway: `localhost:8080`. Routes are listed in `gateway/README.md`.
 
 
+## Logging (ELK)
+
+All services send structured JSON logs to Logstash, which stores them in Elasticsearch. Kibana is used to search them.
+
+Docker needs about 10 GB of memory to run all services together with ELK. With the default 8 GB, Elasticsearch can be stopped by Docker.
+
+Open Kibana at [http://localhost:5601](http://localhost:5601). The first time, create a data view under Stack Management → Data Views with index pattern `estaterate-logs-*` and timestamp field `@timestamp`. Then go to Discover to search the logs.
+
+Example searches in Kibana:
+- `analysis_id : "<id>"` shows every event for one analysis across all services
+- `service.name : "crimerate"` shows the logs from one service
+- `level : "ERROR"` shows what failed
+- `event_type : "mock_fallback_used"` shows when mock data was used instead of a live API
+
+
 ## Postman
 
 Link to import postman requests:
