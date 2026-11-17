@@ -44,6 +44,7 @@ export type SchoolData = {
   score: number;
   nearestSchool?: string;
   distanceKm?: number;
+  dataSource?: "LIVE" | "MOCK";
 };
 
 export type PropertyReport = {

@@ -156,8 +156,8 @@ function parseSchool(data: unknown, score: number | null): SchoolData | null {
     const school: SchoolData = { score: base.score };
     if (isText(d.nearestSchool)) school.nearestSchool = d.nearestSchool;
     if (isNumber(d.distanceKm)) school.distanceKm = d.distanceKm;
+    if (d.dataSource === "LIVE" || d.dataSource === "MOCK") school.dataSource = d.dataSource;
     return school;
-
 }
 
 export function toPropertyReport(
