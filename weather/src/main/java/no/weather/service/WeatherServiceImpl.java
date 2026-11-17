@@ -43,7 +43,10 @@ public class WeatherServiceImpl implements WeatherService {
     public ScoreEvent calculate(PropertySubmittedEvent event) {
         String analysisId = event.analysisId();
         if (event.latitude() == null || event.longitude() == null) {
-            log.warn("Property has no coordinates: {}", analysisId);
+            log.atWarn()
+                    .addKeyValue("event_type", "coordinates_missing")
+                    .addKeyValue("analysis_id", analysisId)
+                    .log("Property has no coordinates");
             return ScoreEvent.failed(analysisId, CATEGORY, "Mangler koordinater");
         }
 
@@ -54,7 +57,7 @@ public class WeatherServiceImpl implements WeatherService {
             // historikk: ekte data, eller mock hvis den ikke kunne hentes
             DataSource historySource = DataSource.LIVE;
             List<MonthlyAverage> averages;
-            List<MonthlyWeather> monthly = liveMonthly(lat, lon);
+            List<MonthlyWeather> monthly = liveMonthly(analysisId, lat, lon);
             if (monthly == null) {
                 historySource = DataSource.MOCK;
                 monthly = mock.monthly();
@@ -66,7 +69,7 @@ public class WeatherServiceImpl implements WeatherService {
             // varsel: ekte data, eller mock hvis den ikke kunne hentes
             DataSource forecastSource = DataSource.LIVE;
             Instant forecastFetchedAt = Instant.now();
-            List<DailyForecast> forecast = liveForecast(lat, lon);
+            List<DailyForecast> forecast = liveForecast(analysisId, lat, lon);
             if (forecast == null) {
                 forecastSource = DataSource.MOCK;
                 forecastFetchedAt = null;
@@ -77,13 +80,17 @@ public class WeatherServiceImpl implements WeatherService {
                     event.coordinatesSource(), averages, monthly, forecast, forecastFetchedAt);
             return ScoreEvent.success(analysisId, CATEGORY, data);
         } catch (Exception e) {
-            log.error("Weather failed for {}", analysisId, e);
+            log.atError()
+                    .setCause(e)
+                    .addKeyValue("event_type", "score_calculation_failed")
+                    .addKeyValue("analysis_id", analysisId)
+                    .log("Weather calculation failed");
             return ScoreEvent.failed(analysisId, CATEGORY, e.getMessage());
         }
     }
 
     // gir null hvis mock skal brukes
-    private List<MonthlyWeather> liveMonthly(double lat, double lon) {
+    private List<MonthlyWeather> liveMonthly(String analysisId, double lat, double lon) {
         if (mockForce.contains("history")) {
             return null;
         }
@@ -94,13 +101,13 @@ public class WeatherServiceImpl implements WeatherService {
             }
             return monthly;
         } catch (WeatherApiException e) {
-            checkFallbackEnabled(e, "history");
+            checkFallbackEnabled(analysisId, e, "history");
             return null;
         }
     }
 
     // gir null hvis mock skal brukes
-    private List<DailyForecast> liveForecast(double lat, double lon) {
+    private List<DailyForecast> liveForecast(String analysisId, double lat, double lon) {
         if (mockForce.contains("forecast")) {
             return null;
         }
@@ -111,16 +118,21 @@ public class WeatherServiceImpl implements WeatherService {
             }
             return forecast;
         } catch (WeatherApiException e) {
-            checkFallbackEnabled(e, "forecast");
+            checkFallbackEnabled(analysisId, e, "forecast");
             return null;
         }
     }
 
     // er fallback slått av, blir feilen til en FAILED-melding
-    private void checkFallbackEnabled(WeatherApiException e, String part) {
+    private void checkFallbackEnabled(String analysisId, WeatherApiException e, String part) {
         if (!fallbackEnabled) {
             throw e;
         }
-        log.warn("Using mock {}: {}", part, e.getMessage());
+        log.atWarn()
+                .addKeyValue("event_type", "mock_fallback_used")
+                .addKeyValue("analysis_id", analysisId)
+                .addKeyValue("part", part)
+                .addKeyValue("reason", e.getMessage())
+                .log("Using mock weather data");
     }
 }

@@ -78,7 +78,7 @@ public class CrimeStatsServiceImpl implements CrimeStatsService {
         } catch (Exception e) {
             log.atError()
                     .setCause(e)
-                    .addKeyValue("event_type", "crime_score_failed")
+                    .addKeyValue("event_type", "score_calculation_failed")
                     .addKeyValue("analysis_id", analysisId)
                     .log("Crime score calculation failed");
             return ScoreEvent.failed(analysisId, CATEGORY, e.getMessage());
