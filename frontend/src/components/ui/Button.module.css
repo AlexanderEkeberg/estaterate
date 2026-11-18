@@ -8,6 +8,7 @@
   font: inherit;
   font-size: 0.875rem;
   transition: background-color 0.15s;
+  cursor: pointer;
 }
 
 .primary {

@@ -80,7 +80,6 @@ export function ScoreSummary({ report }: { report: PropertyReport }) {
   };
 
   const { total, used, pending } = computeTotalScore(scoreReport);
-  const degrees = total != null ? Math.round(total * 3.6) : 0;
 
   let basedOn = `Based on ${used} of ${SCORED_CATEGORY_COUNT} categories`;
   if (pending) basedOn += ` · ${pending} still analysing`;
@@ -106,10 +105,25 @@ export function ScoreSummary({ report }: { report: PropertyReport }) {
               : "No total score yet"
           }
           className={styles.ring}
-          style={{
-            background: `conic-gradient(var(--er-blue) ${degrees}deg, var(--er-border) 0deg)`,
-          }}
         >
+          <svg
+            className={styles.ringSvg}
+            viewBox="0 0 120 120"
+            aria-hidden="true"
+          >
+            <circle className={styles.ringTrack} cx="60" cy="60" r="52" />
+            <circle
+              className={styles.ringProgress}
+              cx="60"
+              cy="60"
+              r="52"
+              strokeDasharray="326.73"
+              strokeDashoffset={
+                total == null ? 326.73 : 326.73 * (1 - total / 100)
+              }
+            />
+          </svg>
+
           <div className={styles.ringInner}>
             <span className={styles.ringValue}>{total ?? "–"}</span>
             <span className={styles.ringLabel}>of 100</span>
