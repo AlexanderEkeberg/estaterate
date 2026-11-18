@@ -6,6 +6,7 @@ import tools.jackson.databind.json.JsonMapper;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.Map;
 
 @Component
@@ -13,7 +14,10 @@ public class MockCrimeData {
 
     private static final String FILE = "mock-crimerate.json";
 
-    private record File(int year, Map<String, Integer> crimeCounts, Map<String, Integer> population) {
+    private record Year(Map<String, Integer> crimeCounts, Map<String, Integer> population) {
+    }
+
+    private record File(Map<Integer, Year> years) {
     }
 
     private final File data;
@@ -26,15 +30,15 @@ public class MockCrimeData {
         }
     }
 
-    public int year() {
-        return data.year();
+    public List<Integer> years() {
+        return data.years().keySet().stream().sorted().toList();
     }
 
-    public Map<String, Integer> crimeCounts() {
-        return data.crimeCounts();
+    public Map<String, Integer> crimeCounts(int year) {
+        return data.years().get(year).crimeCounts();
     }
 
-    public Map<String, Integer> population() {
-        return data.population();
+    public Map<String, Integer> population(int year) {
+        return data.years().get(year).population();
     }
 }

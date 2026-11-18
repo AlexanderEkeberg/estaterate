@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.crimerate.client.OsloStatbankClient;
 import org.example.crimerate.client.StatbankException;
 import org.example.crimerate.dto.CrimeData;
+import org.example.crimerate.dto.CrimeYear;
 import org.example.crimerate.dto.DataSource;
 import org.example.crimerate.entity.CrimeAreaStats;
 import org.example.crimerate.events.PropertySubmittedEvent;
@@ -19,6 +20,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.TreeMap;
 
 @Slf4j
 @Service
@@ -62,17 +64,18 @@ public class CrimeStatsServiceImpl implements CrimeStatsService {
 
         try {
             DataSource source = DataSource.LIVE;
-            List<CrimeAreaStats> stats = liveStats(analysisId, OsloStatbankClient.LAST_YEAR);
-            if (stats == null) {
+            Map<Integer, List<CrimeAreaStats>> statsByYear = liveHistory(analysisId);
+            if (statsByYear == null) {
                 source = DataSource.MOCK;
-                stats = toStats(mock.year(), mock.crimeCounts(), mock.population());
+                statsByYear = mockHistory();
             }
 
+            String code = bydel.get().getCode();
             DataSource usedSource = source;
-            return stats.stream()
-                    .filter(s -> s.getAreaCode().equals(bydel.get().getCode()))
-                    .findFirst()
-                    .map(s -> ScoreEvent.success(analysisId, CATEGORY, (int) Math.round(s.getScore()), toData(s, usedSource)))
+            List<CrimeYear> history = toHistory(statsByYear, code);
+            return findArea(statsByYear.getOrDefault(OsloStatbankClient.LAST_YEAR, List.of()), code)
+                    .map(s -> ScoreEvent.success(analysisId, CATEGORY, (int) Math.round(s.getScore()),
+                            toData(s, usedSource, history)))
                     .orElseGet(() -> ScoreEvent.failed(analysisId, CATEGORY,
                             "Mangler tall for " + bydel.get().getDisplayName()));
         } catch (Exception e) {
@@ -85,24 +88,64 @@ public class CrimeStatsServiceImpl implements CrimeStatsService {
         }
     }
 
-    private List<CrimeAreaStats> liveStats(String analysisId, int year) {
+    private Map<Integer, List<CrimeAreaStats>> liveHistory(String analysisId) {
         if (mockForce) {
             return null;
         }
-        try {
-            return getStats(year);
-        } catch (StatbankException e) {
-            if (!fallbackEnabled) {
-                throw e;
+        Map<Integer, List<CrimeAreaStats>> statsByYear = new TreeMap<>();
+        for (int year = OsloStatbankClient.FIRST_YEAR; year <= OsloStatbankClient.LAST_YEAR; year++) {
+            try {
+                statsByYear.put(year, getStats(year));
+            } catch (StatbankException e) {
+                if (!fallbackEnabled) {
+                    throw e;
+                }
+                log.atWarn()
+                        .addKeyValue("event_type", "mock_fallback_used")
+                        .addKeyValue("analysis_id", analysisId)
+                        .addKeyValue("year", year)
+                        .addKeyValue("reason", e.getMessage())
+                        .log("Using mock crime stats");
+                return null;
             }
-            log.atWarn()
-                    .addKeyValue("event_type", "mock_fallback_used")
-                    .addKeyValue("analysis_id", analysisId)
-                    .addKeyValue("year", year)
-                    .addKeyValue("reason", e.getMessage())
-                    .log("Using mock crime stats");
-            return null;
         }
+        return statsByYear;
+    }
+
+    private Map<Integer, List<CrimeAreaStats>> mockHistory() {
+        Map<Integer, List<CrimeAreaStats>> statsByYear = new TreeMap<>();
+        for (int year : mock.years()) {
+            statsByYear.put(year, toStats(year, mock.crimeCounts(year), mock.population(year)));
+        }
+        return statsByYear;
+    }
+
+    List<CrimeYear> toHistory(Map<Integer, List<CrimeAreaStats>> statsByYear, String areaCode) {
+        List<CrimeYear> history = new ArrayList<>();
+        statsByYear.forEach((year, stats) ->
+                findArea(stats, areaCode).ifPresent(own -> history.add(toYear(own, stats))));
+        return history;
+    }
+
+    private CrimeYear toYear(CrimeAreaStats own, List<CrimeAreaStats> stats) {
+        int crimes = stats.stream().mapToInt(CrimeAreaStats::getCrimeCount).sum();
+        int people = stats.stream().mapToInt(CrimeAreaStats::getPopulation).sum();
+        int rank = 1 + (int) stats.stream()
+                .filter(s -> s.getRatePer1000() < own.getRatePer1000())
+                .count();
+        return new CrimeYear(
+                own.getYear(),
+                own.getCrimeCount(),
+                own.getPopulation(),
+                roundOneDecimal(own.getRatePer1000()),
+                roundOneDecimal(ratePer1000(crimes, people)),
+                rank,
+                stats.size()
+        );
+    }
+
+    private Optional<CrimeAreaStats> findArea(List<CrimeAreaStats> stats, String areaCode) {
+        return stats.stream().filter(s -> s.getAreaCode().equals(areaCode)).findFirst();
     }
 
     List<CrimeAreaStats> getStats(int year) {
@@ -158,7 +201,7 @@ public class CrimeStatsServiceImpl implements CrimeStatsService {
         return result;
     }
 
-    private CrimeData toData(CrimeAreaStats stats, DataSource source) {
+    private CrimeData toData(CrimeAreaStats stats, DataSource source, List<CrimeYear> history) {
         return new CrimeData(
                 source,
                 stats.getAreaName(),
@@ -166,7 +209,8 @@ public class CrimeStatsServiceImpl implements CrimeStatsService {
                 stats.getCrimeCount(),
                 stats.getPopulation(),
                 roundOneDecimal(stats.getRatePer1000()),
-                roundOneDecimal(stats.getScore())
+                roundOneDecimal(stats.getScore()),
+                history
         );
     }
 

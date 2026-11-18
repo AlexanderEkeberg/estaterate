@@ -1,0 +1,37 @@
+.crime {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.sectionHead {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.sectionTitle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.sectionSub {
+  margin: 2px 0 0;
+  font-size: 14px;
+  color: var(--er-muted);
+}
+
+.sources {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding-top: 16px;
+  border-top: 1px solid var(--er-border);
+  font-size: 13px;
+  color: var(--er-muted);
+}

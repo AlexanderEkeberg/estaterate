@@ -1,5 +1,7 @@
 package org.example.crimerate.dto;
 
+import java.util.List;
+
 public record CrimeData(
         DataSource source,
         String bydel,
@@ -7,6 +9,7 @@ public record CrimeData(
         int crimeCount,
         int population,
         double ratePer1000,
-        double score
+        double score,
+        List<CrimeYear> history
 ) {
 }
