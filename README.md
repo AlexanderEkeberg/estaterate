@@ -1,83 +1,114 @@
-# Temporary README for application setup locally and in Docker
+### EstateRate
 
-## Local (Deprecated)
+EstateRate is a property evaluation tool designed to help homebuyers assess and compare the attractiveness of different living locations in Oslo.
 
-### Terminal 1: Property
+### Project Overview
+
+By submitting a property listing URL from Finn.no, EstateRate extracts property and location data and evaluates the surrounding area based on factors such as crime rates, nearby schools, and historical weather conditions. 
+Each evaluation factor is handled by a dedicated microservice that gathers and processes relevant data. Evaluations are performed asynchronously using Kafka, allowing individual services to process property data independently. 
+Once processed, the frontend presents both the individual factor scores and a dynamically calculated overall score. 
+Users can customize the evaluation by excluding factors that are not relevant to them, causing the overall score to recalculate immediately based on their preferences.
+EstateRate also allows users to compare evaluated properties side by side, and registered users can save properties as favorites to revisit their evaluations later. 
+From a technical standpoint, the application demonstrates both synchronous REST communication and asynchronous event-driven messaging via Kafka, alongside service discovery with Consul.
+
+### System Architecture
+
+![Architecture](./docs/architecture.png)
+
+### User Stories
+
+* **Evaluate Locations:** As a property buyer, I want to submit a Finn.no property listing so that I can evaluate the attractiveness of the property's location before making a purchase decision.
+* **Customize Preferences:** As a property buyer, I want to customize which factors are included in the evaluation so that the overall score reflects my preferences.
+* **Compare Properties:** As a property buyer, I want to compare property listings so that I can determine which property best matches my preferences.
+* **Save Favorites:** As a property buyer, I want to save properties as favorites to later access their evaluations.
+
+### Getting Started
+
+#### Prerequisites
+
+* **Docker Desktop** (Recommended: Allocate 10–12 GB of RAM in Docker Desktop settings before running scaled services)
+* **Java / Maven**
+
+#### Build & Run Instructions
+
+1. **Configure Maven Projects:**
+   Right-click the pom.xml files across the different microservices and select **"Add as Maven Project"**.
+2. **Start Docker:**
+   Ensure Docker Desktop is open and running.
+3. **Build and Start Services:**
+   From the project root directory, run:
+
 ```bash
-cd property
-mvn clean spring-boot:run
+   docker compose up -d --build
 ```
 
-### Terminal 2: Weather
+4. **Run with Service Scaling (Optional):**
+   To spin up multiple instances of the core microservices, run:
+
 ```bash
-cd weather
-mvn clean spring-boot:run
+   docker compose up -d --scale property=2 --scale weather=2 --scale crimerate=2 --scale aggregator=2 --scale school=2
 ```
 
-### Terminal 3: School
+#### Stopping services
+
+To stop all running containers and remove the persisted data, run:
+
 ```bash
-cd school
-mvn clean spring-boot:run
+   docker compose down -v
 ```
 
-* **Property API:** [http://localhost:8090/swagger-ui/index.html](http://localhost:8090/swagger-ui/index.html) (Port 8090)
-* **Weather API:** [http://localhost:8082/swagger-ui/index.html](http://localhost:8082/swagger-ui/index.html) (Port 8082)
-* **School API:** [http://localhost:8083/swagger-ui/index.html](http://localhost:8083/swagger-ui/index.html) (Port 8083)
-* **Crimerate API:** [http://localhost:8084/swagger-ui/index.html](http://localhost:8084/swagger-ui/index.html) (Port 8084)
+and delete the folder named "data" that is saved at the root level of the project
 
-## Consul
-http://localhost:8500/ui/dc1/services
+### Accessing & Using the Application
 
+#### Service Endpoints
 
-## Docker (USE THIS NOW)
+* **Frontend Application:** http://localhost:5173/
+* **Consul Service Discovery UI:** http://localhost:8500/ui/dc1/services
 
-Build and start the services (first time / after changing dockerfiles, code or config):
-```bash
-docker compose up -d --build 
-```
+#### Demo Login Credentials
 
-Start the services (run if nothing has been changed):
-```bash
-docker compose up -d 
-```
+* **Email:** tester@estaterate.local
+* **Password:** tester
 
-To get a clean sheet and clear the aggregator database:
-```bash
-docker compose down -v
-```
-and delete the "data" folder at root level
+#### Supported Listings
 
-Start the services with scaling:
-```bash
-docker compose up -d --scale property=2 --scale weather=2 --scale crimerate=2 --scale aggregator=2 --scale school=2
-```
+Paste any of the following Finn.no URLs into the application to generate an evaluation:
 
-Gateway port: [http://localhost:8080](http://localhost:8080) 
-<br>
-For example do a GET request to [http://localhost:8080/api/properties](http://localhost:8080/api/properties)
-Gateway: `localhost:8080`. Routes are listed in `gateway/README.md`.
+| Link                                                            | Address                         |
+|-----------------------------------------------------------------|---------------------------------|
+| https://www.finn.no/realestate/homes/ad.html?finnkode=478564477 | Niels Juels gate 7, 0272 Oslo   |
+| https://www.finn.no/realestate/homes/ad.html?finnkode=476403696 | Sofienberggata 23B, 0558 Oslo   |
+| https://www.finn.no/realestate/homes/ad.html?finnkode=480187265 | Sars' gate 60, 0564 Oslo        |
+| https://www.finn.no/realestate/homes/ad.html?finnkode=480195246 | Trondheimsveien 51 B, 0560 Oslo |
 
 
-## Logging (ELK)
+#### Logging & Monitoring (ELK)
 
-All services send structured JSON logs to Logstash, which stores them in Elasticsearch. Kibana is used to search them.
+All microservices send structured JSON logs to Logstash, which indexes and stores them in Elasticsearch for querying in Kibana.
 
-Docker needs about 10 GB of memory to run all services together with ELK. With the default 8 GB, Elasticsearch can be stopped by Docker.
+#### First-Time Kibana Setup
 
-Open Kibana at [http://localhost:5601](http://localhost:5601). The first time, create a data view under Stack Management → Data Views with index pattern `estaterate-logs-*` and timestamp field `@timestamp`. Then go to Discover to search the logs.
+1. Open Kibana at http://localhost:5601.
+2. Navigate to Stack Management → Data Views and create a new data view:
+* **Index pattern:** `estaterate-logs-*`
+* **Timestamp field:** `@timestamp`
+3. Open Discover from the main menu to inspect and search logs.
 
-Example searches in Kibana:
-- `analysis_id : "<id>"` shows every event for one analysis across all services
-- `service.name : "crimerate"` shows the logs from one service
-- `level : "ERROR"` shows what failed
-- `event_type : "mock_fallback_used"` shows when mock data was used instead of a live API
+#### Useful Kibana Search Queries
+
+* `analysis_id : "<id>"` — View every event tied to a specific property evaluation across all microservices.
+* `service.name : "crimerate"` — Filter logs from a single service (e.g., crimerate, weather, school, property, aggregator).
+* `level : "ERROR"` — Isolate errors and failed operations across the system.
+* `event_type : "mock_fallback_used"` — Identify when fallback mock data was used instead of a live external API.
 
 
-## Postman
 
-Link to import postman requests:
-https://richard-1476962.postman.co/workspace/Richard's-Workspace~c2ffdcc7-39f2-41cd-8bc0-30991787d344/collection/44499091-6da4f4cd-cae1-406e-ab61-140674cd3b51?action=share&creator=44499091
+#### Team Contributions & Responsibilities
 
-Do the POST request first to gather the data from Finn. The GET requests can be used afterwards 
+
+
+
+
 
 
