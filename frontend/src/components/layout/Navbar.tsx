@@ -8,7 +8,7 @@ import { cx } from "../../lib/cx.js";
 import styles from "./Navbar.module.css";
 
 export function Navbar({ onHero = false }: { onHero?: boolean }) {
-  const { status, username, login, logout } = useAuth();
+  const { status, username, login, register, logout } = useAuth();
 
   return (
     <header className={cx(styles.navbar, !onHero && styles.solid)}>
@@ -17,10 +17,13 @@ export function Navbar({ onHero = false }: { onHero?: boolean }) {
       </AppLink>
       <div className={styles.actions}>
         {status === "anonymous" && (
-          <Button variant="ghost" onClick={login}>
-            <User size={16} />
-            Log in
-          </Button>
+          <>
+            <Button variant="ghost" onClick={login}>
+              <User size={16} />
+              Log in
+            </Button>
+            <Button onClick={register}>Get started</Button>
+          </>
         )}
         {status === "authenticated" && (
           <>

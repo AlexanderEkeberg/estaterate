@@ -12,7 +12,9 @@ type AuthStatus = "loading" | "unavailable" | "anonymous" | "authenticated";
 type Auth = {
   status: AuthStatus;
   username: string | null;
+  userId: string | null;
   login: () => void;
+  register: () => void;
   logout: () => void;
 };
 
@@ -43,7 +45,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const auth: Auth = {
     status,
     username: status === "authenticated" ? currentUsername() : null,
+    userId:
+      status === "authenticated" ? (keycloak.tokenParsed?.sub ?? null) : null,
     login: () => void keycloak.login(),
+    register: () => void keycloak.register(),
     logout: () => void keycloak.logout({ redirectUri: window.location.href }),
   };
 

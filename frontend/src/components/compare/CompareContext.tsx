@@ -5,6 +5,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { useAuth } from "../../auth/AuthProvider.js";
 
 export const MAX_COMPARE = 2;
 
@@ -42,50 +43,66 @@ function toItem(value: unknown): CompareItem | null {
   };
 }
 
-function readStored(): CompareItem[] {
+type Stored = { owner: string | null; items: CompareItem[] };
+
+function readStored(): Stored {
   try {
     const parsed: unknown = JSON.parse(
-      sessionStorage.getItem(STORAGE_KEY) ?? "[]",
+      sessionStorage.getItem(STORAGE_KEY) ?? "{}",
     );
-    if (!Array.isArray(parsed)) return [];
-    return parsed
-      .map(toItem)
-      .filter((item): item is CompareItem => item !== null)
-      .slice(0, MAX_COMPARE);
+    const { owner, items } = (parsed ?? {}) as Record<string, unknown>;
+    if (typeof owner !== "string" || !Array.isArray(items)) {
+      return { owner: null, items: [] };
+    }
+    return {
+      owner,
+      items: items
+        .map(toItem)
+        .filter((item): item is CompareItem => item !== null)
+        .slice(0, MAX_COMPARE),
+    };
   } catch {
-    return [];
+    return { owner: null, items: [] };
   }
 }
 
 const CompareContext = createContext<CompareState | null>(null);
 
 export function CompareProvider({ children }: { children: ReactNode }) {
-  const [items, setItems] = useState<CompareItem[]>(readStored);
+  const { userId } = useAuth();
+  const [stored, setStored] = useState<Stored>(readStored);
+  const items = stored.owner === userId ? stored.items : [];
 
   useEffect(() => {
     try {
-      sessionStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+      sessionStorage.setItem(STORAGE_KEY, JSON.stringify(stored));
     } catch {
       return;
     }
-  }, [items]);
+  }, [stored]);
+
+  const update = (change: (current: CompareItem[]) => CompareItem[]) =>
+    setStored((current) => ({
+      owner: userId,
+      items: change(current.owner === userId ? current.items : []),
+    }));
 
   const remove = (id: string) =>
-    setItems((current) => current.filter((item) => item.id !== id));
+    update((current) => current.filter((item) => item.id !== id));
 
   const value: CompareState = {
     items,
     isFull: items.length >= MAX_COMPARE,
     isSelected: (id) => items.some((item) => item.id === id),
     toggle: (item) =>
-      setItems((current) => {
+      update((current) => {
         if (current.some((i) => i.id === item.id)) {
           return current.filter((i) => i.id !== item.id);
         }
         return current.length < MAX_COMPARE ? [...current, item] : current;
       }),
     remove,
-    clear: () => setItems([]),
+    clear: () => update(() => []),
   };
 
   return (

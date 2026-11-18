@@ -5,7 +5,7 @@ import ui from "../../style/ui.module.css";
 import styles from "./LoginPopover.module.css";
 
 export function LoginPopover({ onClose }: { onClose: () => void }) {
-  const { login } = useAuth();
+  const { login, register } = useAuth();
 
   return (
     <div
@@ -33,13 +33,18 @@ export function LoginPopover({ onClose }: { onClose: () => void }) {
         Favourites and comparisons are kept on your account. The analysis itself
         stays free to use.
       </p>
-      <button
-        type="button"
-        className={cx(ui.btn, ui.primary, styles.login)}
-        onClick={login}
-      >
-        Log in
-      </button>
+      <div className={styles.actions}>
+        <button
+          type="button"
+          className={cx(ui.btn, ui.primary)}
+          onClick={login}
+        >
+          Log in
+        </button>
+        <button type="button" className={styles.register} onClick={register}>
+          Create account
+        </button>
+      </div>
     </div>
   );
 }

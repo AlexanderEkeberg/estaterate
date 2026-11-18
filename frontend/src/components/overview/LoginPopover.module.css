@@ -63,7 +63,21 @@
   color: var(--er-muted);
 }
 
-.login {
-  align-self: flex-start;
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
   margin-top: 4px;
+}
+
+.register {
+  padding: 0;
+  border: none;
+  background: none;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--er-blue);
+  text-decoration: underline;
+  cursor: pointer;
 }
