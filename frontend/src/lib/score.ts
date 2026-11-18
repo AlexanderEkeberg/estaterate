@@ -8,19 +8,27 @@ export type TotalScore = {
   pending: number;
 };
 
+export type ScoredCategory = "crime" | "schools";
+
+export type EnabledCategories = Record<ScoredCategory, boolean>;
+
 export function computeTotalScore(
   report: Pick<PropertyReport, "crime" | "schools">,
+  enabled: EnabledCategories = { crime: true, schools: true },
 ): TotalScore {
   const scores: number[] = [];
   let pending = 0;
 
-  for (const result of [report.crime, report.schools]) {
+  for (const [category, result] of [
+    ["crime", report.crime],
+    ["schools", report.schools],
+  ] as const) {
+    if (!enabled[category]) continue;
+
     if (result.status === "AVAILABLE" && result.data) {
       scores.push(result.data.score);
     }
-    if (result.status === "PENDING") {
-      pending++;
-    }
+    if (result.status === "PENDING") pending++;
   }
 
   return { total: average(scores), used: scores.length, pending };

@@ -121,3 +121,25 @@
   font-weight: 600;
   color: var(--er-muted);
 }
+
+.toggle {
+    align-self: flex-start;
+    border: 1px solid var(--er-border-strong);
+    border-radius: 6px;
+    padding: 6px 10px;
+    background: #fff;
+    color: var(--er-navy);
+    font: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.toggle:hover {
+    background: var(--er-blue-soft);
+    border-color: var(--er-blue);
+}
+
+.disabled {
+    opacity: 0.45;
+}
