@@ -2,7 +2,7 @@
   "realm": "estaterate",
   "enabled": true,
   "sslRequired": "none",
-  "registrationAllowed": false,
+  "registrationAllowed": true,
   "clients": [
     {
       "clientId": "estaterate-client",
