@@ -13,13 +13,38 @@
 }
 
 .ring {
-  width: 120px;
-  height: 120px;
-  flex-shrink: 0;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+    position: relative;
+    width: 120px;
+    height: 120px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.ringSvg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+}
+
+.ringTrack,
+.ringProgress {
+    fill: none;
+    stroke-width: 8;
+}
+
+.ringProgress {
+    stroke: var(--er-blue);
+    stroke-linecap: round;
+    transition: stroke-dashoffset 600ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .ringProgress {
+        transition: none;
+    }
 }
 
 .ringInner {
@@ -120,4 +145,26 @@
   font-size: 15px;
   font-weight: 600;
   color: var(--er-muted);
+}
+
+.toggle {
+    align-self: flex-start;
+    border: 1px solid var(--er-border-strong);
+    border-radius: 6px;
+    padding: 6px 10px;
+    background: #fff;
+    color: var(--er-navy);
+    font: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.toggle:hover {
+    background: var(--er-blue-soft);
+    border-color: var(--er-blue);
+}
+
+.disabled {
+    opacity: 0.45;
 }
