@@ -4,6 +4,7 @@ import { Navbar } from "../components/layout/Navbar.js";
 import { OverviewHeader } from "../components/overview/OverviewHeader.js";
 import { ScoreSummary } from "../components/overview/ScoreSummary.js";
 import { WeatherSection } from "../components/overview/WeatherSection.js";
+import { CrimeSection } from "../components/overview/CrimeSection.js";
 import { SchoolSection } from "../components/overview/SchoolSection.js";
 import { CompareTray } from "../components/compare/CompareTray.js";
 import { navigate } from "../main/router.js";
@@ -19,6 +20,7 @@ export function OverviewPage({ report }: { report: PropertyReport }) {
         <OverviewHeader report={report} />
         <ScoreSummary report={report} />
         <WeatherSection result={report.weather} />
+        <CrimeSection result={report.crime} />
           <SchoolSection result={report.schools} />
 
         <div className={styles.footer}>
