@@ -34,10 +34,29 @@ export type WeatherData = {
   fiveYearRange?: string;
 };
 
-// TODO: add the crime fields when crimerate sends its ScoreEvent data
+export type CrimeYear = {
+  year: number;
+  crimeCount: number;
+  population: number;
+  ratePer1000: number;
+  osloRatePer1000: number;
+  rank: number;
+  districtCount: number;
+};
+
+export type CrimeAverage = {
+  ratePer1000: number;
+  osloRatePer1000: number;
+};
+
 export type CrimeData = {
+  dataSource: "LIVE" | "MOCK";
   score: number;
   ratePer1000?: number;
+  bydel?: string;
+  history: CrimeYear[];
+  average?: CrimeAverage;
+  range?: string;
 };
 
 export type SchoolData = {

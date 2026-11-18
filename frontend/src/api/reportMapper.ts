@@ -2,7 +2,9 @@ import type { Analysis, CategoryResult as ApiCategory } from "./analysisApi.js";
 import type { ScrapeResult } from "./propertyApi.js";
 import type {
   CategoryResult,
+  CrimeAverage,
   CrimeData,
+  CrimeYear,
   ForecastDay,
   MonthlyClimate,
   PropertyReport,
@@ -141,10 +143,75 @@ function parseScore(data: unknown, score: number | null) {
   return isNumber(value) ? { score: toScore(value) } : null;
 }
 
+function parseCrimeYear(value: unknown): CrimeYear | null {
+  if (!isObject(value)) return null;
+  const {
+    year,
+    crimeCount,
+    population,
+    ratePer1000,
+    osloRatePer1000,
+    rank,
+    districtCount,
+  } = value;
+  if (
+    !isNumber(year) ||
+    !isNumber(crimeCount) ||
+    !isNumber(population) ||
+    !isNumber(ratePer1000) ||
+    !isNumber(osloRatePer1000) ||
+    !isNumber(rank) ||
+    !isNumber(districtCount)
+  ) {
+    return null;
+  }
+  return {
+    year,
+    crimeCount,
+    population,
+    ratePer1000,
+    osloRatePer1000,
+    rank,
+    districtCount,
+  };
+}
+
+function averageOf(history: CrimeYear[]): CrimeAverage | undefined {
+  const crimes = history.reduce((sum, y) => sum + y.crimeCount, 0);
+  const people = history.reduce((sum, y) => sum + y.population, 0);
+  const oslo = history.reduce((sum, y) => sum + y.osloRatePer1000, 0);
+  if (people === 0) return undefined;
+  return {
+    ratePer1000: (crimes * 1000) / people,
+    osloRatePer1000: oslo / history.length,
+  };
+}
+
 function parseCrime(data: unknown, score: number | null): CrimeData | null {
-  const crime: CrimeData | null = parseScore(data, score);
-  if (crime && isObject(data) && isNumber(data.ratePer1000)) {
-    crime.ratePer1000 = data.ratePer1000;
+  const base = parseScore(data, score);
+  if (!base) return null;
+  const d = isObject(data) ? data : {};
+
+  const history = asList(d.history)
+    .map(parseCrimeYear)
+    .filter(notNull)
+    .sort((a, b) => a.year - b.year);
+
+  const crime: CrimeData = {
+    dataSource: d.source === "MOCK" ? "MOCK" : "LIVE",
+    score: base.score,
+    history,
+  };
+  const average = averageOf(history);
+  if (average) crime.average = average;
+  if (isNumber(d.ratePer1000)) crime.ratePer1000 = d.ratePer1000;
+  if (isText(d.bydel)) crime.bydel = d.bydel;
+
+  const first = history[0];
+  const last = history[history.length - 1];
+  if (first && last) {
+    crime.range =
+      first === last ? `${first.year}` : `${first.year}–${last.year}`;
   }
   return crime;
 }
