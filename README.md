@@ -133,6 +133,6 @@ All microservices send structured JSON logs to Logstash, which indexes and store
   * **Aggregator:** gathering data from services and saving in PostgreSQL to serve the frontend.
   * **Gateway:** configuring load-balanced URIs for dynamic routing.
   * **Frontend:** functionality for customizing preferences (disabling factors included in score summary).
-  * **Kafka:** adding Kafka integration and functionality for PropertySubmitted events.
+  * **Kafka:** adding Kafka integration and initial functionality for PropertySubmitted events.
   * **Consul:** service discovery, health checks, centralized configuration. 
   * **General:** configuring services for scaling (multiple instances), as well as providing a general guideline for the project architecture/flow. 
