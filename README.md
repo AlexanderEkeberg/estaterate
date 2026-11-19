@@ -19,8 +19,11 @@ From a technical standpoint, the application demonstrates both synchronous REST 
 
 * **Evaluate Locations:** As a property buyer, I want to submit a Finn.no property listing so that I can evaluate the attractiveness of the property's location before making a purchase decision.
 * **Customize Preferences:** As a property buyer, I want to customize which factors are included in the evaluation so that the overall score reflects my preferences.
-* **Compare Properties:** As a property buyer, I want to compare property listings so that I can determine which property best matches my preferences.
-* **Save Favorites:** As a property buyer, I want to save properties as favorites to later access their evaluations.
+* **Compare Properties:** As a logged-in property buyer, I want to compare property listings so that I can determine which property best matches my preferences.
+* **Save Favorites:** As a logged-in property buyer, I want to save properties as favorites to later access their evaluations.
+* **Create Account:** As a new user, I want to create an account so that I can save favorites and compare properties.
+
+Compare and favorites require login. Use the demo user below or create an account with "Sign up" or "Get started" in the frontend.
 
 ### Getting Started
 
@@ -71,6 +74,13 @@ and delete the folder named "data" that is saved at the root level of the projec
 * **Email:** tester@estaterate.local
 * **Password:** tester
 
+#### Admin Login Credentials
+
+For the Keycloak admin console at http://localhost:8180:
+
+* **Username:** admin
+* **Password:** admin
+
 #### Supported Listings
 
 Paste any of the following Finn.no URLs into the application to generate an evaluation:
@@ -104,11 +114,16 @@ All microservices send structured JSON logs to Logstash, which indexes and store
 
 
 
+#### Decisions, Assumptions & Simplifications
+
+* FINN blocks automated requests, so the supported listings above are read from mock data. If another listing cannot be read, a default property in Oslo is used instead.
+
 #### Team Contributions & Responsibilities
 
-
-
-
-
-
-
+* **Alexander Ekeberg** – Responsible for the frontend, property, weather, favourites, gateway and Keycloak.
+  * **Frontend:** most of the user interface, including analysis, compare, favourites, login and sign-up.
+  * **Property:** reading FINN listings, mock data, and publishing the property event to Kafka.
+  * **Weather:** forecast and historical weather, published as a score event to Kafka.
+  * **Favourites:** saving favourites per user in PostgreSQL.
+  * **Gateway:** routing and protected routes with JWT validation.
+  * **Keycloak:** authentication setup with realm, demo user, login and sign-up.
