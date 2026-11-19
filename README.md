@@ -128,6 +128,12 @@ All microservices send structured JSON logs to Logstash, which indexes and store
   * **Gateway:** routing and protected routes with JWT validation.
   * **Keycloak:** authentication setup with realm, demo user, login and sign-up.
 
+* **Candidate number 6** – Responsible for crimerate, logging (ELK) and the crime section in the frontend.
+    * **Crimerate:** crime statistics per Oslo district, published as a score event to Kafka.
+    * **Integration:** Dockerfile, Consul registration and Kafka consumer for crimerate.
+    * **Frontend:** crime section with a chart of the district compared with the Oslo average.
+    * **Logging (ELK):** Elasticsearch, Logstash and Kibana, and structured logging in all services.
+
 * **Candidate number 38** - Responsible for Docker setup, aggregator, partly gateway, partly frontend, Kafka integration, Consul, and general functionality.
   * **Docker:** initial containerization and general management of compose.
   * **Aggregator:** gathering data from services and saving in PostgreSQL to serve the frontend.
