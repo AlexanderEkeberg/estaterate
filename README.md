@@ -136,3 +136,9 @@ All microservices send structured JSON logs to Logstash, which indexes and store
   * **Kafka:** adding Kafka integration and initial functionality for PropertySubmitted events.
   * **Consul:** service discovery, health checks, centralized configuration. 
   * **General:** configuring services for scaling (multiple instances), as well as providing a general guideline for the project architecture/flow. 
+
+* **Candidate number 31** - Responsible for the school service
+    * **school service:** calculate distance from the nearest school (from api, with mock fallback) publishing score event to Kafka. 
+    * **frontend:** built the school card and data mapping for school data. 
+    * **General** contributed in discussion about design choices and architecture.  
+  
