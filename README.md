@@ -146,5 +146,41 @@ All microservices send structured JSON logs to Logstash, which indexes and store
 * **Candidate number 31** - Responsible for the school service
     * **school service:** calculate distance from the nearest school (from api, with mock fallback) publishing score event to Kafka. 
     * **frontend:** built the school card and data mapping for school data. 
-    * **General** contributed in discussion about design choices and architecture.  
+    * **General** contributed in discussion about design choices and architecture.
+ 
+#### Checklist of requirements
+Required (but not sufficient) for E <br>
+[x] 1. Use multiple services, that fulfill different functionality and communicate with each
+other <br>
+[x] 2. At least two of the services communicate using synchronous communication (for
+example, direct REST calls between two services). <br>
+[x] 3. At least two of the services communicate using asynchronous communication (for
+example, using Message Queue). This will be done in accordance with event-driven
+architecture, as discussed in class. <br>
+ 
+Required (but not sufficient) for D <br>
+[x] 4. Each service has a clear structure and functionality. <br>
+[x] 5. The architecture of the project is consistent with the documentation. (All services are
+described in the architecture, they can be found in the project, their functionality, structure,
+interactions are documented. <br>
+[x] 6. The project can be deployed as a group of Docker containers. <br>
+
+Required (but not sufficient) for C <br>
+[x] 7. The project uses a unique access point, that handled calls and routes them to appropriate
+services – Gateway <br>
+[x] 8. The project uses a unique access point that, in addition to routing calls, also does load
+balancing <br>
+ 
+Required (but not sufficient) for B <br>
+[x] 9. The project has a means of centrally controlling the health of running services – health
+check <br>
+[x] 10. The project, and all services and necessary components, can be started via docker
+compose (using the command ‘docker compose up’). The project is ready for integration into
+a CI/CD pipeline. <br>
+
+Required (but not sufficient) for A <br>
+[x] 11. The project has a means of centrally controlling configurations for the services – for
+example, using Consul <br>
+[x] 12. The project can be deployed with multiple instances of relevant services of the
+services. <br>
   
