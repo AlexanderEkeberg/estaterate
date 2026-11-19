@@ -120,7 +120,7 @@ All microservices send structured JSON logs to Logstash, which indexes and store
 
 #### Team Contributions & Responsibilities
 
-* **Alexander Ekeberg** – Responsible for the frontend, property, weather, favourites, gateway and Keycloak.
+* **Alexander Ekeberg (candidate number 19)** – Responsible for the frontend, property, weather, favourites, gateway and Keycloak.
   * **Frontend:** most of the user interface, including analysis, compare, favourites, login and sign-up.
   * **Property:** reading FINN listings, mock data, and publishing the property event to Kafka.
   * **Weather:** forecast and historical weather, published as a score event to Kafka.
