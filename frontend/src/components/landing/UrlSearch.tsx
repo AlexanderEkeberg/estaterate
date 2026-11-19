@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, CircleAlert, Link } from "lucide-react";
 import { ApiError, scrapeProperty } from "../../api/propertyApi.js";
 import { navigate } from "../../main/router.js";
 import { saveScrapeResult } from "../../storage/scrapeResults.js";
@@ -59,6 +59,7 @@ export function UrlSearch() {
         aria-busy={submitting}
         noValidate
       >
+        <Link size={18} className={styles.linkIcon} aria-hidden />
         <input
           className={styles.input}
           type="url"
@@ -83,6 +84,7 @@ export function UrlSearch() {
       </form>
       {message && (
         <p id="url-search-message" className={styles.error} role="alert">
+          <CircleAlert size={16} aria-hidden />
           {message}
         </p>
       )}
