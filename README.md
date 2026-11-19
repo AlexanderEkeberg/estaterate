@@ -127,3 +127,12 @@ All microservices send structured JSON logs to Logstash, which indexes and store
   * **Favourites:** saving favourites per user in PostgreSQL.
   * **Gateway:** routing and protected routes with JWT validation.
   * **Keycloak:** authentication setup with realm, demo user, login and sign-up.
+
+* **Candidate number 38** - Responsible for Docker setup, aggregator, partly gateway, partly frontend, Kafka integration, Consul, and general functionality.
+  * **Docker:** initial containerization and general management of compose.
+  * **Aggregator:** gathering data from services and saving in PostgreSQL to serve the frontend.
+  * **Gateway:** configuring load-balanced URIs for dynamic routing.
+  * **Frontend:** functionality for customizing preferences (disabling factors included in score summary).
+  * **Kafka:** adding Kafka integration and functionality for PropertySubmitted events.
+  * **Consul:** service discovery, health checks, centralized configuration. 
+  * **General:** configuring services for scaling (multiple instances), as well as providing a general guideline for the project architecture/flow. 
